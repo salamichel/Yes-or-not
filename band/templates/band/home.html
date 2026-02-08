@@ -1,0 +1,96 @@
+{% extends "band/base.html" %}
+{% load static %}
+
+{% block title %}{{ settings.band_name }} – Accueil{% endblock %}
+
+{% block content %}
+<section class="hero" {% if settings.hero_image %}style="background-image: url('{{ settings.hero_image.url }}')"{% endif %}>
+    <div class="hero-overlay">
+        <div class="container">
+            <h1>{{ settings.band_name }}</h1>
+            <p class="hero-tagline">{{ settings.tagline }}</p>
+            {% if page and page.content %}
+                <p class="hero-text">{{ page.content|truncatewords:30 }}</p>
+            {% endif %}
+            <div class="hero-cta">
+                <a href="{% url 'events' %}" class="btn btn-primary">Prochaines dates</a>
+                <a href="{% url 'about' %}" class="btn btn-secondary">Découvrir le groupe</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if upcoming_events %}
+<section class="section section-events">
+    <div class="container">
+        <h2 class="section-title">Prochaines dates</h2>
+        <div class="events-grid">
+            {% for event in upcoming_events %}
+            <div class="event-card">
+                <div class="event-date-badge">
+                    <span class="day">{{ event.date|date:"d" }}</span>
+                    <span class="month">{{ event.date|date:"M" }}</span>
+                    <span class="year">{{ event.date|date:"Y" }}</span>
+                </div>
+                <div class="event-info">
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-venue">{{ event.venue }} – {{ event.city }}</p>
+                    {% if event.ticket_url %}
+                        <a href="{{ event.ticket_url }}" class="btn btn-small" target="_blank" rel="noopener">Billetterie</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="section-more">
+            <a href="{% url 'events' %}" class="btn btn-outline">Toutes les dates</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if featured_videos %}
+<section class="section section-videos">
+    <div class="container">
+        <h2 class="section-title">Vidéos</h2>
+        <div class="videos-grid">
+            {% for video in featured_videos %}
+            <div class="video-card">
+                <div class="video-embed">
+                    <iframe src="{{ video.embed_url }}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+                </div>
+                <h3>{{ video.title }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="section-more">
+            <a href="{% url 'videos' %}" class="btn btn-outline">Toutes les vidéos</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if albums %}
+<section class="section section-albums">
+    <div class="container">
+        <h2 class="section-title">Discographie</h2>
+        <div class="albums-grid">
+            {% for album in albums %}
+            <a href="{% url 'album_detail' album.pk %}" class="album-card">
+                {% if album.cover %}
+                    <img src="{{ album.cover.url }}" alt="{{ album.title }}" loading="lazy">
+                {% else %}
+                    <div class="album-placeholder"></div>
+                {% endif %}
+                <h3>{{ album.title }}</h3>
+                <p class="album-year">{{ album.release_date|date:"Y" }}</p>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="section-more">
+            <a href="{% url 'albums' %}" class="btn btn-outline">Tous les albums</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "band/base.html" %}
+
+{% block title %}{{ settings.band_name }} – Membres{% endblock %}
+
+{% block content %}
+<section class="page-header" {% if page and page.banner_image %}style="background-image: url('{{ page.banner_image.url }}')"{% endif %}>
+    <div class="container">
+        <h1>{% if page %}{{ page.title }}{% else %}Les membres{% endif %}</h1>
+        {% if page and page.subtitle %}<p class="page-subtitle">{{ page.subtitle }}</p>{% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if page and page.content %}
+            <div class="editorial-content">{{ page.content|linebreaks }}</div>
+        {% endif %}
+        <div class="members-grid members-grid-large">
+            {% for member in members %}
+            <a href="{% url 'member_detail' member.pk %}" class="member-card">
+                <div class="member-avatar">
+                    {% if member.avatar %}
+                        <img src="{{ member.avatar.url }}" alt="{{ member.first_name }} {{ member.last_name }}" loading="lazy">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ member.first_name|first }}{{ member.last_name|first }}</div>
+                    {% endif %}
+                </div>
+                <h3>{{ member.first_name }} {{ member.last_name }}</h3>
+                <p class="member-role">{{ member.role }}</p>
+                {% if member.bio %}
+                    <p class="member-bio-preview">{{ member.bio|truncatewords:25 }}</p>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

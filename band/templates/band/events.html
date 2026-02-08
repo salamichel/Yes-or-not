@@ -1,0 +1,70 @@
+{% extends "band/base.html" %}
+
+{% block title %}{{ settings.band_name }} – Dates{% endblock %}
+
+{% block content %}
+<section class="page-header" {% if page and page.banner_image %}style="background-image: url('{{ page.banner_image.url }}')"{% endif %}>
+    <div class="container">
+        <h1>{% if page %}{{ page.title }}{% else %}Dates de concert{% endif %}</h1>
+        {% if page and page.subtitle %}<p class="page-subtitle">{{ page.subtitle }}</p>{% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if page and page.content %}
+            <div class="editorial-content">{{ page.content|linebreaks }}</div>
+        {% endif %}
+
+        {% if upcoming_events %}
+        <h2 class="section-title">Prochaines dates</h2>
+        <div class="events-list">
+            {% for event in upcoming_events %}
+            <div class="event-card event-card-full{% if event.is_cancelled %} event-cancelled{% endif %}">
+                <div class="event-date-badge">
+                    <span class="day">{{ event.date|date:"d" }}</span>
+                    <span class="month">{{ event.date|date:"M" }}</span>
+                    <span class="year">{{ event.date|date:"Y" }}</span>
+                </div>
+                <div class="event-info">
+                    <h3>{{ event.title }}{% if event.is_cancelled %} <span class="badge-cancelled">Annulé</span>{% endif %}</h3>
+                    <p class="event-venue">{{ event.venue }} – {{ event.city }}</p>
+                    <p class="event-time">{{ event.date|date:"H:i" }}</p>
+                    {% if event.description %}<p>{{ event.description|truncatewords:30 }}</p>{% endif %}
+                    {% if event.ticket_url and not event.is_cancelled %}
+                        <a href="{{ event.ticket_url }}" class="btn btn-small" target="_blank" rel="noopener">Billetterie</a>
+                    {% endif %}
+                </div>
+                {% if event.poster %}
+                <div class="event-poster">
+                    <img src="{{ event.poster.url }}" alt="{{ event.title }}" loading="lazy">
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p class="empty-state">Pas de dates prévues pour le moment. Restez connectés !</p>
+        {% endif %}
+
+        {% if past_events %}
+        <h2 class="section-title" style="margin-top: 3rem;">Dates passées</h2>
+        <div class="events-list events-past">
+            {% for event in past_events %}
+            <div class="event-card event-card-full event-card-past">
+                <div class="event-date-badge">
+                    <span class="day">{{ event.date|date:"d" }}</span>
+                    <span class="month">{{ event.date|date:"M" }}</span>
+                    <span class="year">{{ event.date|date:"Y" }}</span>
+                </div>
+                <div class="event-info">
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-venue">{{ event.venue }} – {{ event.city }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

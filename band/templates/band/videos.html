@@ -1,0 +1,37 @@
+{% extends "band/base.html" %}
+
+{% block title %}{{ settings.band_name }} – Vidéos{% endblock %}
+
+{% block content %}
+<section class="page-header" {% if page and page.banner_image %}style="background-image: url('{{ page.banner_image.url }}')"{% endif %}>
+    <div class="container">
+        <h1>{% if page %}{{ page.title }}{% else %}Vidéos{% endif %}</h1>
+        {% if page and page.subtitle %}<p class="page-subtitle">{{ page.subtitle }}</p>{% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if page and page.content %}
+            <div class="editorial-content">{{ page.content|linebreaks }}</div>
+        {% endif %}
+        {% if videos %}
+        <div class="videos-grid">
+            {% for video in videos %}
+            <div class="video-card">
+                <div class="video-embed">
+                    <iframe src="{{ video.embed_url }}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+                </div>
+                <h3>{{ video.title }}</h3>
+                {% if video.description %}
+                    <p>{{ video.description|truncatewords:20 }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p class="empty-state">Aucune vidéo pour le moment.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

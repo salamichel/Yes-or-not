@@ -1,0 +1,37 @@
+{% extends "band/base.html" %}
+
+{% block title %}{{ settings.band_name }} – Albums{% endblock %}
+
+{% block content %}
+<section class="page-header" {% if page and page.banner_image %}style="background-image: url('{{ page.banner_image.url }}')"{% endif %}>
+    <div class="container">
+        <h1>{% if page %}{{ page.title }}{% else %}Discographie{% endif %}</h1>
+        {% if page and page.subtitle %}<p class="page-subtitle">{{ page.subtitle }}</p>{% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if page and page.content %}
+            <div class="editorial-content">{{ page.content|linebreaks }}</div>
+        {% endif %}
+        {% if albums %}
+        <div class="albums-grid albums-grid-large">
+            {% for album in albums %}
+            <a href="{% url 'album_detail' album.pk %}" class="album-card">
+                {% if album.cover %}
+                    <img src="{{ album.cover.url }}" alt="{{ album.title }}" loading="lazy">
+                {% else %}
+                    <div class="album-placeholder"></div>
+                {% endif %}
+                <h3>{{ album.title }}</h3>
+                <p class="album-year">{{ album.release_date|date:"Y" }}</p>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p class="empty-state">Aucun album pour le moment.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

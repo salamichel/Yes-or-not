@@ -1,0 +1,58 @@
+{% extends "band/base.html" %}
+
+{% block title %}{{ album.title }} – {{ settings.band_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>{{ album.title }}</h1>
+        <p class="page-subtitle">{{ album.release_date|date:"Y" }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="album-detail">
+            <div class="album-detail-cover">
+                {% if album.cover %}
+                    <img src="{{ album.cover.url }}" alt="{{ album.title }}">
+                {% else %}
+                    <div class="album-placeholder album-placeholder-large"></div>
+                {% endif %}
+            </div>
+            <div class="album-detail-info">
+                <h2>{{ album.title }}</h2>
+                <p class="album-release">Sorti le {{ album.release_date|date:"d/m/Y" }}</p>
+                {% if album.description %}
+                    <div class="album-description">{{ album.description|linebreaks }}</div>
+                {% endif %}
+
+                <div class="album-links">
+                    {% if album.spotify_url %}<a href="{{ album.spotify_url }}" class="btn btn-small" target="_blank" rel="noopener">Spotify</a>{% endif %}
+                    {% if album.apple_music_url %}<a href="{{ album.apple_music_url }}" class="btn btn-small" target="_blank" rel="noopener">Apple Music</a>{% endif %}
+                    {% if album.deezer_url %}<a href="{{ album.deezer_url }}" class="btn btn-small" target="_blank" rel="noopener">Deezer</a>{% endif %}
+                    {% if album.bandcamp_url %}<a href="{{ album.bandcamp_url }}" class="btn btn-small" target="_blank" rel="noopener">Bandcamp</a>{% endif %}
+                </div>
+
+                {% if album.tracks.all %}
+                <div class="tracklist">
+                    <h3>Tracklist</h3>
+                    <ol>
+                        {% for track in album.tracks.all %}
+                        <li>
+                            <span class="track-title">{{ track.title }}</span>
+                            {% if track.duration %}<span class="track-duration">{{ track.duration }}</span>{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container" style="padding: 2rem 0;">
+    <a href="{% url 'albums' %}" class="btn btn-outline">&larr; Retour aux albums</a>
+</div>
+{% endblock %}

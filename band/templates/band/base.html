@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ settings.band_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<header class="site-header">
+    <nav class="navbar">
+        <div class="container">
+            <a href="{% url 'home' %}" class="logo">
+                {% if settings.logo %}
+                    <img src="{{ settings.logo.url }}" alt="{{ settings.band_name }}">
+                {% else %}
+                    <span class="logo-text">{{ settings.band_name }}</span>
+                {% endif %}
+            </a>
+            <button class="nav-toggle" aria-label="Menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Accueil</a></li>
+                <li><a href="{% url 'about' %}">Le groupe</a></li>
+                <li><a href="{% url 'members' %}">Membres</a></li>
+                <li><a href="{% url 'albums' %}">Albums</a></li>
+                <li><a href="{% url 'videos' %}">Vidéos</a></li>
+                <li><a href="{% url 'events' %}">Dates</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+{% if messages %}
+<div class="messages-container">
+    <div class="container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>{{ settings.band_name }}</h3>
+                <p>{{ settings.tagline }}</p>
+            </div>
+            <div class="footer-social">
+                {% if settings.facebook_url %}<a href="{{ settings.facebook_url }}" target="_blank" rel="noopener" aria-label="Facebook">FB</a>{% endif %}
+                {% if settings.instagram_url %}<a href="{{ settings.instagram_url }}" target="_blank" rel="noopener" aria-label="Instagram">IG</a>{% endif %}
+                {% if settings.youtube_url %}<a href="{{ settings.youtube_url }}" target="_blank" rel="noopener" aria-label="YouTube">YT</a>{% endif %}
+                {% if settings.spotify_url %}<a href="{{ settings.spotify_url }}" target="_blank" rel="noopener" aria-label="Spotify">SP</a>{% endif %}
+            </div>
+            <div class="footer-links">
+                <a href="{% url 'contact' %}">Contact</a>
+                <a href="{% url 'events' %}">Dates</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {{ settings.band_name }} – Tous droits réservés</p>
+        </div>
+    </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
