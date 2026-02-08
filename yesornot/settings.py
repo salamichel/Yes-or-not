@@ -108,6 +108,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Brevo (ex-Sendinblue) – API transactionnelle
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+BREVO_SENDER_EMAIL = os.environ.get("BREVO_SENDER_EMAIL", "contact@yesornot.fr")
+BREVO_SENDER_NAME = os.environ.get("BREVO_SENDER_NAME", "Yes or Not")
+BREVO_RECIPIENT_EMAIL = os.environ.get("BREVO_RECIPIENT_EMAIL", "contact@yesornot.fr")
+
 # CKEditor 5
 CKEDITOR_5_FILE_STORAGE = "django.core.files.storage.default_storage"
 CKEDITOR_5_UPLOADS_FOLDER = "ckeditor/"

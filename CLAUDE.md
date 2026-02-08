@@ -7,6 +7,7 @@
 - **Base de données** : PostgreSQL 16 (Docker) / SQLite (dev local sans Docker)
 - **Reverse proxy** : Nginx (sert les fichiers statiques et media)
 - **Médias** : Pillow pour le traitement d'images (avatars, pochettes, affiches)
+- **Email transactionnel** : Brevo (ex-Sendinblue) API v3
 - **Conteneurisation** : Docker Compose (3 services : web, db, nginx)
 
 ## Structure du projet
@@ -35,7 +36,7 @@ Yes-or-not/
 │   ├── css/style.css      # Styles (dark theme, responsive, CSS variables)
 │   └── js/main.js         # JS minimal (nav mobile, alerts)
 ├── media/                 # Uploads (avatars, pochettes, affiches) – gitignored
-├── requirements.txt       # Django, Pillow, Gunicorn, psycopg
+├── requirements.txt       # Django, Pillow, Gunicorn, psycopg, requests
 └── manage.py
 ```
 
@@ -98,6 +99,10 @@ python manage.py runserver
 | `DJANGO_DEBUG`         | Mode debug (`True`/`False`)           | `False` en Docker      |
 | `DJANGO_ALLOWED_HOSTS` | Hosts autorisés (séparés par `,`)     | `localhost,127.0.0.1`  |
 | `DATABASE_URL`         | URL PostgreSQL (auto-généré par compose) | –                   |
+| `BREVO_API_KEY`        | Clé API Brevo (transactional emails)  | –                      |
+| `BREVO_SENDER_EMAIL`   | Email expéditeur Brevo                | `contact@yesornot.fr`  |
+| `BREVO_SENDER_NAME`    | Nom expéditeur Brevo                  | `Yes or Not`           |
+| `BREVO_RECIPIENT_EMAIL`| Email destinataire des messages       | `contact@yesornot.fr`  |
 | `PORT`                 | Port Nginx exposé sur l'hôte          | `80`                   |
 
 ## Modèles de données

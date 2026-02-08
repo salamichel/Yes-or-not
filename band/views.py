@@ -1,7 +1,13 @@
+import logging
+
+import requests as http_requests
+from django.conf import settings as django_settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.contrib import messages
 from .models import SiteSettings, Member, Album, Video, Event, ContactMessage, Page
+
+logger = logging.getLogger(__name__)
 
 
 def get_page(slug):
@@ -71,6 +77,51 @@ def events_list(request):
     return render(request, "band/events.html", ctx)
 
 
+def _send_brevo_email(name, email, subject, message_text):
+    """Send contact notification via Brevo transactional email API."""
+    api_key = django_settings.BREVO_API_KEY
+    if not api_key:
+        logger.warning("BREVO_API_KEY not configured – email not sent")
+        return False
+
+    payload = {
+        "sender": {
+            "name": django_settings.BREVO_SENDER_NAME,
+            "email": django_settings.BREVO_SENDER_EMAIL,
+        },
+        "to": [{"email": django_settings.BREVO_RECIPIENT_EMAIL}],
+        "replyTo": {"email": email, "name": name},
+        "subject": f"[Contact Yes or Not] {subject}",
+        "htmlContent": (
+            f"<h2>Nouveau message de contact</h2>"
+            f"<p><strong>Nom :</strong> {name}</p>"
+            f"<p><strong>Email :</strong> {email}</p>"
+            f"<p><strong>Sujet :</strong> {subject}</p>"
+            f"<hr>"
+            f"<p>{message_text.replace(chr(10), '<br>')}</p>"
+        ),
+    }
+
+    try:
+        resp = http_requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            json=payload,
+            headers={
+                "api-key": api_key,
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            timeout=10,
+        )
+        if resp.status_code in (200, 201):
+            return True
+        logger.error("Brevo API error %s: %s", resp.status_code, resp.text)
+        return False
+    except http_requests.RequestException as exc:
+        logger.error("Brevo API request failed: %s", exc)
+        return False
+
+
 def contact(request):
     ctx = get_context("contact")
     if request.method == "POST":
@@ -83,6 +134,7 @@ def contact(request):
             ContactMessage.objects.create(
                 name=name, email=email, subject=subject, message=message_text,
             )
+            _send_brevo_email(name, email, subject, message_text)
             messages.success(request, "Votre message a bien été envoyé. Merci !")
             return redirect("contact")
         else:
