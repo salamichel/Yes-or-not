@@ -2,18 +2,26 @@
 
 ## Stack technique
 
-- **Backend** : Django 5.2 (Python)
+- **Backend** : Django 5.2 (Python) + Gunicorn
 - **Frontend** : Templates Django + CSS vanilla (dark theme) + JS vanilla
-- **Base de données** : SQLite (dev), prévoir PostgreSQL en production
+- **Base de données** : PostgreSQL 16 (Docker) / SQLite (dev local sans Docker)
+- **Reverse proxy** : Nginx (sert les fichiers statiques et media)
 - **Médias** : Pillow pour le traitement d'images (avatars, pochettes, affiches)
-- **Hébergement** : Non configuré – à définir
+- **Conteneurisation** : Docker Compose (3 services : web, db, nginx)
 
 ## Structure du projet
 
 ```
 Yes-or-not/
-├── yesornot/              # Configuration Django (settings, urls, wsgi)
-│   ├── settings.py
+├── docker-compose.yml     # Orchestration des 3 services
+├── Dockerfile             # Image Django + Gunicorn
+├── entrypoint.sh          # Wait for DB + migrate + collectstatic
+├── .env.example           # Variables d'environnement (template)
+├── .dockerignore
+├── nginx/
+│   └── default.conf       # Config Nginx (proxy + static/media)
+├── yesornot/              # Configuration Django
+│   ├── settings.py        # Settings avec DATABASE_URL conditionnel
 │   ├── urls.py
 │   └── wsgi.py
 ├── band/                  # Application principale
@@ -27,8 +35,70 @@ Yes-or-not/
 │   ├── css/style.css      # Styles (dark theme, responsive, CSS variables)
 │   └── js/main.js         # JS minimal (nav mobile, alerts)
 ├── media/                 # Uploads (avatars, pochettes, affiches) – gitignored
+├── requirements.txt       # Django, Pillow, Gunicorn, psycopg
 └── manage.py
 ```
+
+## Docker Compose – Services
+
+| Service | Image               | Rôle                                    | Port exposé |
+|---------|---------------------|-----------------------------------------|-------------|
+| `db`    | `postgres:16-alpine`| Base de données PostgreSQL              | interne     |
+| `web`   | Build depuis `./`   | Django + Gunicorn (3 workers)           | interne     |
+| `nginx` | `nginx:alpine`      | Reverse proxy, fichiers statiques/media | `80`        |
+
+### Volumes persistants
+
+- `postgres_data` : données PostgreSQL
+- `static_files` : fichiers statiques collectés (`collectstatic`)
+- `media_files` : uploads utilisateurs (avatars, pochettes, affiches)
+
+## Commandes Docker
+
+```bash
+# Copier et éditer les variables d'environnement
+cp .env.example .env
+# ⚠️  Modifier les valeurs dans .env (mot de passe, secret key, domaine)
+
+# Lancer tous les services (build + démarrage)
+docker compose up --build -d
+
+# Créer un superutilisateur admin
+docker compose exec web python manage.py createsuperuser
+
+# Voir les logs
+docker compose logs -f web
+
+# Arrêter
+docker compose down
+
+# Arrêter et supprimer les volumes (⚠️ perte de données)
+docker compose down -v
+```
+
+## Développement local (sans Docker)
+
+```bash
+pip install -r requirements.txt
+
+# Sans DATABASE_URL → utilise SQLite automatiquement
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+## Variables d'environnement (.env)
+
+| Variable               | Description                           | Défaut                 |
+|------------------------|---------------------------------------|------------------------|
+| `POSTGRES_DB`          | Nom de la base PostgreSQL             | `yesornot`             |
+| `POSTGRES_USER`        | Utilisateur PostgreSQL                | `yesornot`             |
+| `POSTGRES_PASSWORD`    | Mot de passe PostgreSQL               | `yesornot_secret`      |
+| `DJANGO_SECRET_KEY`    | Clé secrète Django                    | (insecure par défaut)  |
+| `DJANGO_DEBUG`         | Mode debug (`True`/`False`)           | `False` en Docker      |
+| `DJANGO_ALLOWED_HOSTS` | Hosts autorisés (séparés par `,`)     | `localhost,127.0.0.1`  |
+| `DATABASE_URL`         | URL PostgreSQL (auto-généré par compose) | –                   |
+| `PORT`                 | Port Nginx exposé sur l'hôte          | `80`                   |
 
 ## Modèles de données
 
@@ -70,26 +140,6 @@ Accessible via `/admin/`. Toutes les sections sont administrables :
 - **Messages de contact** : lecture seule, marquage lu/non-lu
 - **Pages** : contenu éditorial de chaque rubrique (titre, sous-titre, texte, bannière)
 
-## Commandes utiles
-
-```bash
-# Installation
-pip install django pillow
-
-# Migrations
-python manage.py makemigrations band
-python manage.py migrate
-
-# Créer un admin
-python manage.py createsuperuser
-
-# Lancer le serveur de dev
-python manage.py runserver
-
-# Vérification du projet
-python manage.py check
-```
-
 ## Design
 
 - **Thème** : Sombre (dark), palette rock/alternative
@@ -106,12 +156,11 @@ python manage.py check
 - Labels et verbose_name : **français** (interface admin et formulaires)
 - Templates : héritage via `base.html`, blocs `title`, `content`, `extra_head`, `extra_js`
 - Context commun : la fonction `get_context(slug)` injecte `settings` et `page` dans chaque vue
+- Settings : `DATABASE_URL` présent → PostgreSQL, absent → SQLite (dev local)
 
 ## Points d'attention / TODO
 
-- [ ] Ajouter un fichier `requirements.txt` complet avec versions pinées
-- [ ] Configurer PostgreSQL pour la production
-- [ ] Ajouter HTTPS et variables d'environnement pour `SECRET_KEY`
+- [ ] Configurer HTTPS (Let's Encrypt / Certbot dans Nginx)
 - [ ] Configurer le stockage media (S3 ou équivalent) pour la production
 - [ ] Ajouter des tests unitaires
 - [ ] Optimiser les images (thumbnails automatiques)

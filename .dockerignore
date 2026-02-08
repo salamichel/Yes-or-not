@@ -1,0 +1,16 @@
+__pycache__
+*.pyc
+*.sqlite3
+db.sqlite3
+.env
+.git
+.gitignore
+media/
+staticfiles/
+.venv
+venv
+*.md
+nginx/
+docker-compose.yml
+Dockerfile
+.dockerignore
