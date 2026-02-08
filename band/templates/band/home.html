@@ -4,58 +4,114 @@
 {% block title %}{{ settings.band_name }} – Accueil{% endblock %}
 
 {% block content %}
-<section class="hero" {% if settings.hero_image %}style="background-image: url('{{ settings.hero_image.url }}')"{% endif %}>
-    <div class="hero-overlay">
-        <div class="container">
-            <h1>{{ settings.band_name }}</h1>
-            <p class="hero-tagline">{{ settings.tagline }}</p>
-            {% if page and page.content %}
-                <p class="hero-text">{{ page.content|truncatewords:30 }}</p>
+{# ===== HERO PARALLAX ===== #}
+<section class="hero-parallax" {% if settings.hero_image %}style="background-image: url('{{ settings.hero_image.url }}')"{% endif %}>
+    <div class="hero-parallax-overlay">
+        <div class="container hero-parallax-content">
+            <span class="hero-label reveal">{{ settings.tagline }}</span>
+            <h1 class="hero-parallax-title reveal">{{ settings.band_name }}</h1>
+            {% if page and page.subtitle %}
+                <p class="hero-parallax-tagline reveal">{{ page.subtitle }}</p>
             {% endif %}
-            <div class="hero-cta">
-                <a href="{% url 'events' %}" class="btn btn-primary">Prochaines dates</a>
-                <a href="{% url 'about' %}" class="btn btn-secondary">Découvrir le groupe</a>
+            <div class="hero-cta reveal">
+                <a href="{% url 'events' %}" class="btn btn-primary btn-lg">Prochaines dates</a>
+                <a href="{% url 'about' %}" class="btn btn-glass btn-lg">Découvrir le groupe</a>
+            </div>
+            <div class="hero-scroll-indicator">
+                <span></span>
             </div>
         </div>
     </div>
 </section>
 
-{% if upcoming_events %}
-<section class="section section-events">
+{# ===== INTRO / ACCROCHE ===== #}
+{% if page and page.content %}
+<section class="section home-intro">
     <div class="container">
-        <h2 class="section-title">Prochaines dates</h2>
-        <div class="events-grid">
-            {% for event in upcoming_events %}
-            <div class="event-card">
-                <div class="event-date-badge">
-                    <span class="day">{{ event.date|date:"d" }}</span>
-                    <span class="month">{{ event.date|date:"M" }}</span>
-                    <span class="year">{{ event.date|date:"Y" }}</span>
-                </div>
-                <div class="event-info">
-                    <h3>{{ event.title }}</h3>
-                    <p class="event-venue">{{ event.venue }} – {{ event.city }}</p>
-                    {% if event.ticket_url %}
-                        <a href="{{ event.ticket_url }}" class="btn btn-small" target="_blank" rel="noopener">Billetterie</a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="section-more">
-            <a href="{% url 'events' %}" class="btn btn-outline">Toutes les dates</a>
+        <div class="intro-content reveal">
+            {{ page.content|safe }}
         </div>
     </div>
 </section>
 {% endif %}
 
-{% if featured_videos %}
-<section class="section section-videos">
+{# ===== MEMBRES – BANDEAU HORIZONTAL ===== #}
+{% if members %}
+<section class="section section-dark home-members">
     <div class="container">
-        <h2 class="section-title">Vidéos</h2>
-        <div class="videos-grid">
+        <h2 class="section-title reveal">Le groupe</h2>
+        <div class="members-showcase">
+            {% for member in members %}
+            <a href="{% url 'member_detail' member.pk %}" class="member-showcase-item reveal">
+                <div class="member-showcase-img">
+                    {% if member.avatar %}
+                        <img src="{{ member.avatar.url }}" alt="{{ member.first_name }}" loading="lazy">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ member.first_name|first }}</div>
+                    {% endif %}
+                </div>
+                <div class="member-showcase-info">
+                    <h3>{{ member.first_name }} {{ member.last_name }}</h3>
+                    <span>{{ member.role }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="section-more reveal">
+            <a href="{% url 'members' %}" class="btn btn-outline">Tous les membres</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ===== BANNIÈRE PARALLAX INTERMÉDIAIRE ===== #}
+{% if page and page.banner_image %}
+<section class="parallax-banner" style="background-image: url('{{ page.banner_image.url }}')">
+    <div class="parallax-banner-overlay"></div>
+</section>
+{% endif %}
+
+{# ===== ALBUMS – MISE EN AVANT ===== #}
+{% if albums %}
+<section class="section home-albums">
+    <div class="container">
+        <h2 class="section-title reveal">Discographie</h2>
+        <div class="albums-showcase">
+            {% for album in albums %}
+            <a href="{% url 'album_detail' album.pk %}" class="album-showcase-item reveal">
+                <div class="album-showcase-cover">
+                    {% if album.cover %}
+                        <img src="{{ album.cover.url }}" alt="{{ album.title }}" loading="lazy">
+                    {% else %}
+                        <div class="album-placeholder"></div>
+                    {% endif %}
+                </div>
+                <div class="album-showcase-info">
+                    <span class="album-showcase-year">{{ album.release_date|date:"Y" }}</span>
+                    <h3>{{ album.title }}</h3>
+                    {% if album.description %}
+                        <p>{{ album.description|striptags|truncatewords:20 }}</p>
+                    {% endif %}
+                    <span class="btn btn-outline btn-small">Écouter</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="section-more reveal">
+            <a href="{% url 'albums' %}" class="btn btn-outline">Tous les albums</a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ===== VIDÉOS ===== #}
+{% if featured_videos %}
+<section class="section section-dark home-videos">
+    <div class="container">
+        <h2 class="section-title reveal">Vidéos</h2>
+        <div class="videos-showcase">
             {% for video in featured_videos %}
-            <div class="video-card">
+            <div class="video-showcase-item reveal">
                 <div class="video-embed">
                     <iframe src="{{ video.embed_url }}" frameborder="0" allowfullscreen loading="lazy"></iframe>
                 </div>
@@ -63,34 +119,85 @@
             </div>
             {% endfor %}
         </div>
-        <div class="section-more">
+        <div class="section-more reveal">
             <a href="{% url 'videos' %}" class="btn btn-outline">Toutes les vidéos</a>
         </div>
     </div>
 </section>
 {% endif %}
 
-{% if albums %}
-<section class="section section-albums">
+{# ===== PROCHAINES DATES ===== #}
+{% if upcoming_events %}
+<section class="section home-events">
     <div class="container">
-        <h2 class="section-title">Discographie</h2>
-        <div class="albums-grid">
-            {% for album in albums %}
-            <a href="{% url 'album_detail' album.pk %}" class="album-card">
-                {% if album.cover %}
-                    <img src="{{ album.cover.url }}" alt="{{ album.title }}" loading="lazy">
-                {% else %}
-                    <div class="album-placeholder"></div>
-                {% endif %}
-                <h3>{{ album.title }}</h3>
-                <p class="album-year">{{ album.release_date|date:"Y" }}</p>
-            </a>
+        <h2 class="section-title reveal">Prochaines dates</h2>
+        <div class="events-showcase">
+            {% for event in upcoming_events %}
+            <div class="event-showcase-item reveal">
+                <div class="event-showcase-date">
+                    <span class="day">{{ event.date|date:"d" }}</span>
+                    <span class="month">{{ event.date|date:"M Y" }}</span>
+                </div>
+                <div class="event-showcase-info">
+                    <h3>{{ event.title }}</h3>
+                    <p>{{ event.venue }} — {{ event.city }}</p>
+                </div>
+                <div class="event-showcase-action">
+                    {% if event.ticket_url %}
+                        <a href="{{ event.ticket_url }}" class="btn btn-primary btn-small" target="_blank" rel="noopener">Billetterie</a>
+                    {% endif %}
+                </div>
+            </div>
             {% endfor %}
         </div>
-        <div class="section-more">
-            <a href="{% url 'albums' %}" class="btn btn-outline">Tous les albums</a>
+        <div class="section-more reveal">
+            <a href="{% url 'events' %}" class="btn btn-outline">Toutes les dates</a>
         </div>
     </div>
 </section>
 {% endif %}
+
+{# ===== CTA FINAL ===== #}
+<section class="section-cta">
+    <div class="container reveal">
+        <h2>Une question, un booking ?</h2>
+        <p>N'hésitez pas à nous contacter</p>
+        <a href="{% url 'contact' %}" class="btn btn-primary btn-lg">Nous écrire</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    // Parallax on hero
+    var hero = document.querySelector('.hero-parallax');
+    if (hero) {
+        window.addEventListener('scroll', function() {
+            hero.style.backgroundPositionY = (window.pageYOffset * 0.4) + 'px';
+        }, {passive: true});
+    }
+
+    // Parallax on banner
+    var banner = document.querySelector('.parallax-banner');
+    if (banner) {
+        window.addEventListener('scroll', function() {
+            var offset = banner.getBoundingClientRect().top * 0.3;
+            banner.style.backgroundPositionY = offset + 'px';
+        }, {passive: true});
+    }
+
+    // Scroll reveal animations
+    var reveals = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    reveals.forEach(function(el) { observer.observe(el); });
+})();
+</script>
 {% endblock %}
