@@ -16,13 +16,14 @@ services:
 
   web:
     build: .
+    restart: unless-stopped
     env_file: .env
     environment:
       DJANGO_SETTINGS_MODULE: yesornot.settings
       DATABASE_URL: postgres://${POSTGRES_USER:-yesornot}:${POSTGRES_PASSWORD:-yesornot_secret}@db:5432/${POSTGRES_DB:-yesornot}
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me-in-production}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,yes-or-not.fr,dev.yes-or-not.fr}
     volumes:
       - static_files:/app/staticfiles
       - media_files:/app/media
@@ -32,6 +33,7 @@ services:
 
   nginx:
     image: nginx:alpine
+    restart: unless-stopped
     ports:
       - "${PORT:-80}:80"
     volumes:
