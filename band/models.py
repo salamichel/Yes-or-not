@@ -33,7 +33,7 @@ class SiteSettings(models.Model):
 
 class Member(models.Model):
     first_name = models.CharField(max_length=100, verbose_name="Prénom")
-    last_name = models.CharField(max_length=100, verbose_name="Nom")
+    last_name = models.CharField(max_length=100, blank=True, default="", verbose_name="Nom")
     role = models.CharField(max_length=200, verbose_name="Rôle / Instrument")
     avatar = models.ImageField(upload_to="members/avatars/", blank=True, null=True)
     bio = models.TextField(blank=True, verbose_name="Biographie")
@@ -41,12 +41,13 @@ class Member(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="Actif")
 
     class Meta:
-        ordering = ["order", "last_name"]
+        ordering = ["order", "first_name"]
         verbose_name = "Membre"
         verbose_name_plural = "Membres"
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} – {self.role}"
+        name = f"{self.first_name} {self.last_name}".strip()
+        return f"{name} – {self.role}"
 
 
 class MemberPortfolioItem(models.Model):
