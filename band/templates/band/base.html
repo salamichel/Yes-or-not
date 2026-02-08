@@ -27,8 +27,8 @@
                 <li><a href="{% url 'home' %}">Accueil</a></li>
                 <li><a href="{% url 'about' %}">Le groupe</a></li>
                 <li><a href="{% url 'members' %}">Membres</a></li>
-                <li><a href="{% url 'albums' %}">Albums</a></li>
-                <li><a href="{% url 'videos' %}">Vidéos</a></li>
+                {% if has_albums %}<li><a href="{% url 'albums' %}">Albums</a></li>{% endif %}
+                {% if has_videos %}<li><a href="{% url 'videos' %}">Vidéos</a></li>{% endif %}
                 <li><a href="{% url 'events' %}">Dates</a></li>
                 <li><a href="{% url 'contact' %}">Contact</a></li>
             </ul>
