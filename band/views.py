@@ -19,6 +19,8 @@ def get_page(slug):
 
 def get_context(slug=None):
     ctx = {"settings": SiteSettings.load()}
+    ctx["has_albums"] = Album.objects.exists()
+    ctx["has_videos"] = Video.objects.exists()
     if slug:
         ctx["page"] = get_page(slug)
     return ctx
