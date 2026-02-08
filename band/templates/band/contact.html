@@ -15,7 +15,7 @@
         <div class="contact-layout">
             <div class="contact-form-wrapper">
                 {% if page and page.content %}
-                    <div class="editorial-content">{{ page.content|linebreaks }}</div>
+                    <div class="editorial-content">{{ page.content|safe }}</div>
                 {% endif %}
                 <form method="post" action="{% url 'contact' %}" class="contact-form">
                     {% csrf_token %}

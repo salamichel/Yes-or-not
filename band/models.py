@@ -1,11 +1,12 @@
 from django.db import models
 from django.utils import timezone
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 class SiteSettings(models.Model):
     band_name = models.CharField(max_length=200, default="Yes or Not")
     tagline = models.CharField(max_length=500, blank=True, default="Rock / Alternative")
-    about_text = models.TextField(blank=True, verbose_name="Texte de présentation du groupe")
+    about_text = CKEditor5Field(blank=True, verbose_name="Texte de présentation du groupe", config_name="default")
     hero_image = models.ImageField(upload_to="site/", blank=True, null=True, verbose_name="Image d'en-tête")
     logo = models.ImageField(upload_to="site/", blank=True, null=True)
     facebook_url = models.URLField(blank=True)
@@ -36,7 +37,7 @@ class Member(models.Model):
     last_name = models.CharField(max_length=100, blank=True, default="", verbose_name="Nom")
     role = models.CharField(max_length=200, verbose_name="Rôle / Instrument")
     avatar = models.ImageField(upload_to="members/avatars/", blank=True, null=True)
-    bio = models.TextField(blank=True, verbose_name="Biographie")
+    bio = CKEditor5Field(blank=True, verbose_name="Biographie", config_name="default")
     order = models.PositiveIntegerField(default=0, verbose_name="Ordre d'affichage")
     is_active = models.BooleanField(default=True, verbose_name="Actif")
 
@@ -53,7 +54,7 @@ class Member(models.Model):
 class MemberPortfolioItem(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="portfolio_items")
     title = models.CharField(max_length=200, verbose_name="Titre")
-    description = models.TextField(blank=True)
+    description = CKEditor5Field(blank=True, config_name="default")
     image = models.ImageField(upload_to="members/portfolio/", blank=True, null=True)
     video_url = models.URLField(blank=True, verbose_name="URL vidéo (YouTube, etc.)")
     order = models.PositiveIntegerField(default=0)
@@ -71,7 +72,7 @@ class Album(models.Model):
     title = models.CharField(max_length=200, verbose_name="Titre")
     cover = models.ImageField(upload_to="albums/", blank=True, null=True, verbose_name="Pochette")
     release_date = models.DateField(verbose_name="Date de sortie")
-    description = models.TextField(blank=True)
+    description = CKEditor5Field(blank=True, config_name="default")
     spotify_url = models.URLField(blank=True, verbose_name="Lien Spotify")
     apple_music_url = models.URLField(blank=True, verbose_name="Lien Apple Music")
     deezer_url = models.URLField(blank=True, verbose_name="Lien Deezer")
@@ -104,7 +105,7 @@ class Track(models.Model):
 class Video(models.Model):
     title = models.CharField(max_length=200, verbose_name="Titre")
     embed_url = models.URLField(verbose_name="URL d'intégration (embed)")
-    description = models.TextField(blank=True)
+    description = CKEditor5Field(blank=True, config_name="default")
     thumbnail = models.ImageField(upload_to="videos/", blank=True, null=True, verbose_name="Miniature")
     published_date = models.DateField(blank=True, null=True, verbose_name="Date de publication")
     is_featured = models.BooleanField(default=False, verbose_name="Mise en avant")
@@ -124,7 +125,7 @@ class Event(models.Model):
     date = models.DateTimeField(verbose_name="Date et heure")
     venue = models.CharField(max_length=300, verbose_name="Lieu")
     city = models.CharField(max_length=200, verbose_name="Ville")
-    description = models.TextField(blank=True)
+    description = CKEditor5Field(blank=True, config_name="default")
     ticket_url = models.URLField(blank=True, verbose_name="Lien billetterie")
     poster = models.ImageField(upload_to="events/", blank=True, null=True, verbose_name="Affiche")
     is_cancelled = models.BooleanField(default=False, verbose_name="Annulé")
@@ -172,7 +173,7 @@ class Page(models.Model):
     slug = models.SlugField(unique=True, choices=SLUG_CHOICES)
     title = models.CharField(max_length=200, verbose_name="Titre de la page")
     subtitle = models.CharField(max_length=500, blank=True, verbose_name="Sous-titre")
-    content = models.TextField(blank=True, verbose_name="Contenu éditorial")
+    content = CKEditor5Field(blank=True, verbose_name="Contenu éditorial", config_name="default")
     banner_image = models.ImageField(upload_to="pages/", blank=True, null=True, verbose_name="Image bannière")
 
     class Meta:

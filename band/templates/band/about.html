@@ -14,10 +14,10 @@
     <div class="container">
         <div class="about-content">
             {% if page and page.content %}
-                <div class="editorial-content">{{ page.content|linebreaks }}</div>
+                <div class="editorial-content">{{ page.content|safe }}</div>
             {% endif %}
             {% if settings.about_text %}
-                <div class="editorial-content">{{ settings.about_text|linebreaks }}</div>
+                <div class="editorial-content">{{ settings.about_text|safe }}</div>
             {% endif %}
         </div>
     </div>

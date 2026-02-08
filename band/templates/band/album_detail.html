@@ -24,7 +24,7 @@
                 <h2>{{ album.title }}</h2>
                 <p class="album-release">Sorti le {{ album.release_date|date:"d/m/Y" }}</p>
                 {% if album.description %}
-                    <div class="album-description">{{ album.description|linebreaks }}</div>
+                    <div class="album-description">{{ album.description|safe }}</div>
                 {% endif %}
 
                 <div class="album-links">

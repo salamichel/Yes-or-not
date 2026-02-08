@@ -13,7 +13,7 @@
 <section class="section">
     <div class="container">
         {% if page and page.content %}
-            <div class="editorial-content">{{ page.content|linebreaks }}</div>
+            <div class="editorial-content">{{ page.content|safe }}</div>
         {% endif %}
 
         {% if upcoming_events %}
