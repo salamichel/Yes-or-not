@@ -20,7 +20,14 @@
             {% for video in videos %}
             <div class="video-card">
                 <div class="video-embed">
+                    {% if video.is_mp4 %}
+                    <video controls preload="metadata" {% if video.thumbnail %}poster="{{ video.thumbnail.url }}"{% endif %}>
+                        <source src="{{ video.video_file.url }}" type="video/mp4">
+                        Votre navigateur ne supporte pas la lecture vidéo.
+                    </video>
+                    {% else %}
                     <iframe src="{{ video.embed_url }}" frameborder="0" allowfullscreen loading="lazy"></iframe>
+                    {% endif %}
                 </div>
                 <h3>{{ video.title }}</h3>
                 {% if video.description %}

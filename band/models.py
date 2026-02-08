@@ -120,7 +120,12 @@ class Track(models.Model):
 
 class Video(models.Model):
     title = models.CharField(max_length=200, verbose_name="Titre")
-    embed_url = models.URLField(verbose_name="URL d'intégration (embed)")
+    embed_url = models.URLField(blank=True, verbose_name="URL d'intégration (embed YouTube)")
+    video_file = models.FileField(
+        upload_to="videos/mp4/", blank=True, null=True,
+        verbose_name="Fichier vidéo (MP4)",
+        help_text="Télécharger un fichier MP4. Si rempli, sera utilisé à la place du lien embed.",
+    )
     description = CKEditor5Field(blank=True, config_name="default")
     thumbnail = models.ImageField(upload_to="videos/", blank=True, null=True, verbose_name="Miniature")
     published_date = models.DateField(blank=True, null=True, verbose_name="Date de publication")
@@ -134,6 +139,10 @@ class Video(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_mp4(self):
+        return bool(self.video_file)
 
 
 class Event(models.Model):

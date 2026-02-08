@@ -53,10 +53,21 @@ class AlbumAdmin(admin.ModelAdmin):
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
-    list_display = ("title", "published_date", "is_featured", "order")
+    list_display = ("title", "video_type", "published_date", "is_featured", "order")
     list_editable = ("is_featured", "order")
     list_filter = ("is_featured",)
     search_fields = ("title",)
+    fieldsets = (
+        (None, {"fields": ("title", "description", "thumbnail", "published_date", "is_featured", "order")}),
+        ("Source vidéo", {
+            "description": "Remplir soit un lien embed YouTube, soit uploader un fichier MP4. Le fichier MP4 est prioritaire.",
+            "fields": ("embed_url", "video_file"),
+        }),
+    )
+
+    @admin.display(description="Type")
+    def video_type(self, obj):
+        return "MP4" if obj.is_mp4 else "Embed"
 
 
 @admin.register(Event)
