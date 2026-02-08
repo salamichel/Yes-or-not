@@ -168,6 +168,6 @@ Accessible via `/admin/`. Toutes les sections sont administrables :
 - [ ] Configurer HTTPS (Let's Encrypt / Certbot dans Nginx)
 - [ ] Configurer le stockage media (S3 ou équivalent) pour la production
 - [ ] Ajouter des tests unitaires
-- [ ] Optimiser les images (thumbnails automatiques)
+- [x] Optimiser les images (thumbnails automatiques)
 - [ ] SEO : meta descriptions, Open Graph tags
 - [ ] Ajouter un sitemap.xml et robots.txt

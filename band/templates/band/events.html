@@ -1,4 +1,5 @@
 {% extends "band/base.html" %}
+{% load thumbnails %}
 
 {% block title %}{{ settings.band_name }} – Dates{% endblock %}
 
@@ -23,7 +24,7 @@
             <div class="event-visual-card{% if event.is_cancelled %} event-cancelled{% endif %}">
                 <div class="event-visual-image">
                     {% if event.poster %}
-                    <img src="{{ event.poster.url }}" alt="{{ event.title }}" loading="lazy">
+                    <img src="{{ event.poster|thumbnail:'400x500' }}" alt="{{ event.title }}" loading="lazy">
                     {% else %}
                     <div class="event-visual-placeholder">
                         <span class="event-visual-placeholder-icon">&#9835;</span>
@@ -65,7 +66,7 @@
             <div class="event-visual-card event-visual-card-past">
                 <div class="event-visual-image">
                     {% if event.poster %}
-                    <img src="{{ event.poster.url }}" alt="{{ event.title }}" loading="lazy">
+                    <img src="{{ event.poster|thumbnail:'400x500' }}" alt="{{ event.title }}" loading="lazy">
                     {% else %}
                     <div class="event-visual-placeholder">
                         <span class="event-visual-placeholder-icon">&#9835;</span>
