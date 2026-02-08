@@ -39,9 +39,20 @@
                     <h3>Tracklist</h3>
                     <ol>
                         {% for track in album.tracks.all %}
-                        <li>
+                        <li class="track-row{% if track.audio_file %} track-playable{% endif %}" {% if track.audio_file %}data-src="{{ track.audio_file.url }}"{% endif %}>
+                            {% if track.audio_file %}
+                                <button class="track-play-btn" aria-label="Écouter {{ track.title }}">
+                                    <span class="icon-play">&#9654;</span>
+                                    <span class="icon-pause">&#10074;&#10074;</span>
+                                </button>
+                            {% endif %}
                             <span class="track-title">{{ track.title }}</span>
                             {% if track.duration %}<span class="track-duration">{{ track.duration }}</span>{% endif %}
+                            {% if track.audio_file %}
+                                <div class="track-progress">
+                                    <div class="track-progress-bar"></div>
+                                </div>
+                            {% endif %}
                         </li>
                         {% endfor %}
                     </ol>
@@ -55,4 +66,77 @@
 <div class="container" style="padding: 2rem 0;">
     <a href="{% url 'albums' %}" class="btn btn-outline">&larr; Retour aux albums</a>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var audio = new Audio();
+    var currentRow = null;
+
+    function stopCurrent() {
+        if (currentRow) {
+            currentRow.classList.remove('playing');
+            audio.pause();
+            audio.currentTime = 0;
+        }
+    }
+
+    function playTrack(row) {
+        var src = row.getAttribute('data-src');
+        if (currentRow === row && !audio.paused) {
+            row.classList.remove('playing');
+            audio.pause();
+            return;
+        }
+        stopCurrent();
+        currentRow = row;
+        audio.src = src;
+        audio.play();
+        row.classList.add('playing');
+    }
+
+    document.querySelectorAll('.track-playable').forEach(function(row) {
+        var btn = row.querySelector('.track-play-btn');
+        if (btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                playTrack(row);
+            });
+        }
+    });
+
+    audio.addEventListener('timeupdate', function() {
+        if (!currentRow || !audio.duration) return;
+        var pct = (audio.currentTime / audio.duration) * 100;
+        var bar = currentRow.querySelector('.track-progress-bar');
+        if (bar) bar.style.width = pct + '%';
+    });
+
+    audio.addEventListener('ended', function() {
+        if (!currentRow) return;
+        currentRow.classList.remove('playing');
+        var bar = currentRow.querySelector('.track-progress-bar');
+        if (bar) bar.style.width = '0%';
+        // Auto-play next track
+        var next = currentRow.nextElementSibling;
+        if (next && next.classList.contains('track-playable')) {
+            playTrack(next);
+        } else {
+            currentRow = null;
+        }
+    });
+
+    // Click on progress bar to seek
+    document.querySelectorAll('.track-progress').forEach(function(prog) {
+        prog.addEventListener('click', function(e) {
+            var row = prog.closest('.track-row');
+            if (row !== currentRow || audio.paused) return;
+            var rect = prog.getBoundingClientRect();
+            var pct = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pct * audio.duration;
+        });
+    });
+})();
+</script>
 {% endblock %}

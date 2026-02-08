@@ -107,6 +107,7 @@ class Track(models.Model):
     title = models.CharField(max_length=200, verbose_name="Titre")
     track_number = models.PositiveIntegerField(verbose_name="N° de piste")
     duration = models.CharField(max_length=10, blank=True, verbose_name="Durée (ex: 3:45)")
+    audio_file = models.FileField(upload_to="albums/tracks/", blank=True, null=True, verbose_name="Fichier audio (MP3)")
 
     class Meta:
         ordering = ["track_number"]
