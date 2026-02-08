@@ -30,8 +30,26 @@
     </div>
 </section>
 
-{% if member.portfolio_items.all %}
+{% if member.photos.all %}
 <section class="section section-alt">
+    <div class="container">
+        <h2 class="section-title">Galerie photos</h2>
+        <div class="gallery-grid">
+            {% for photo in member.photos.all %}
+            <a href="{{ photo.image.url }}" class="gallery-item" data-lightbox>
+                <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" loading="lazy">
+                {% if photo.caption %}
+                    <span class="gallery-caption">{{ photo.caption }}</span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if member.portfolio_items.all %}
+<section class="section{% if not member.photos.all %} section-alt{% endif %}">
     <div class="container">
         <h2 class="section-title">Portfolio</h2>
         <div class="portfolio-grid">
@@ -47,7 +65,7 @@
                 {% endif %}
                 <h3>{{ item.title }}</h3>
                 {% if item.description %}
-                    <p>{{ item.description }}</p>
+                    <p>{{ item.description|safe }}</p>
                 {% endif %}
             </div>
             {% endfor %}
@@ -59,4 +77,69 @@
 <div class="container" style="padding: 2rem 0;">
     <a href="{% url 'members' %}" class="btn btn-outline">&larr; Retour aux membres</a>
 </div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+    <button class="lightbox-close" aria-label="Fermer">&times;</button>
+    <button class="lightbox-prev" aria-label="Précédente">&#10094;</button>
+    <button class="lightbox-next" aria-label="Suivante">&#10095;</button>
+    <div class="lightbox-content">
+        <img src="" alt="" id="lightbox-img">
+        <p class="lightbox-caption" id="lightbox-caption"></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var lightbox = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lightbox-img');
+    var lbCaption = document.getElementById('lightbox-caption');
+    var items = document.querySelectorAll('[data-lightbox]');
+    var current = 0;
+
+    function openLightbox(index) {
+        current = index;
+        var item = items[index];
+        lbImg.src = item.href;
+        lbCaption.textContent = item.querySelector('.gallery-caption')
+            ? item.querySelector('.gallery-caption').textContent : '';
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function navigate(dir) {
+        current = (current + dir + items.length) % items.length;
+        openLightbox(current);
+    }
+
+    items.forEach(function(item, i) {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            openLightbox(i);
+        });
+    });
+
+    lightbox.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+    lightbox.querySelector('.lightbox-prev').addEventListener('click', function() { navigate(-1); });
+    lightbox.querySelector('.lightbox-next').addEventListener('click', function() { navigate(1); });
+
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox) closeLightbox();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') navigate(-1);
+        if (e.key === 'ArrowRight') navigate(1);
+    });
+})();
+</script>
 {% endblock %}

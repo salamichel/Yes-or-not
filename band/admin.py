@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    SiteSettings, Member, MemberPortfolioItem, Album, Track,
+    SiteSettings, Member, MemberPortfolioItem, MemberPhoto, Album, Track,
     Video, Event, ContactMessage, Page,
 )
 
@@ -25,13 +25,18 @@ class MemberPortfolioInline(admin.TabularInline):
     extra = 1
 
 
+class MemberPhotoInline(admin.TabularInline):
+    model = MemberPhoto
+    extra = 3
+
+
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
     list_display = ("first_name", "last_name", "role", "order", "is_active")
     list_editable = ("order", "is_active")
     list_filter = ("is_active",)
     search_fields = ("first_name", "last_name", "role")
-    inlines = [MemberPortfolioInline]
+    inlines = [MemberPortfolioInline, MemberPhotoInline]
 
 
 class TrackInline(admin.TabularInline):

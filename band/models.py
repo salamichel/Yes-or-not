@@ -68,6 +68,21 @@ class MemberPortfolioItem(models.Model):
         return f"{self.member} – {self.title}"
 
 
+class MemberPhoto(models.Model):
+    member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="photos")
+    image = models.ImageField(upload_to="members/gallery/", verbose_name="Photo")
+    caption = models.CharField(max_length=300, blank=True, verbose_name="Légende")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordre")
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "Photo"
+        verbose_name_plural = "Galerie photos"
+
+    def __str__(self):
+        return self.caption or f"Photo {self.pk}"
+
+
 class Album(models.Model):
     title = models.CharField(max_length=200, verbose_name="Titre")
     cover = models.ImageField(upload_to="albums/", blank=True, null=True, verbose_name="Pochette")
