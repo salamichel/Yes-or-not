@@ -18,28 +18,39 @@
 
         {% if upcoming_events %}
         <h2 class="section-title">Prochaines dates</h2>
-        <div class="events-list">
+        <div class="events-cards-grid">
             {% for event in upcoming_events %}
-            <div class="event-card event-card-full{% if event.is_cancelled %} event-cancelled{% endif %}">
-                <div class="event-date-badge">
-                    <span class="day">{{ event.date|date:"d" }}</span>
-                    <span class="month">{{ event.date|date:"M" }}</span>
-                    <span class="year">{{ event.date|date:"Y" }}</span>
+            <div class="event-visual-card{% if event.is_cancelled %} event-cancelled{% endif %}">
+                <div class="event-visual-image">
+                    {% if event.poster %}
+                    <img src="{{ event.poster.url }}" alt="{{ event.title }}" loading="lazy">
+                    {% else %}
+                    <div class="event-visual-placeholder">
+                        <span class="event-visual-placeholder-icon">&#9835;</span>
+                    </div>
+                    {% endif %}
+                    <div class="event-visual-date-badge">
+                        <span class="day">{{ event.date|date:"d" }}</span>
+                        <span class="month">{{ event.date|date:"M" }}</span>
+                        <span class="year">{{ event.date|date:"Y" }}</span>
+                    </div>
+                    {% if event.is_cancelled %}
+                    <div class="event-visual-cancelled-overlay">
+                        <span>Annulé</span>
+                    </div>
+                    {% endif %}
                 </div>
-                <div class="event-info">
-                    <h3>{{ event.title }}{% if event.is_cancelled %} <span class="badge-cancelled">Annulé</span>{% endif %}</h3>
-                    <p class="event-venue">{{ event.venue }} – {{ event.city }}</p>
-                    <p class="event-time">{{ event.date|date:"H:i" }}</p>
-                    {% if event.description %}<p>{{ event.description|truncatewords:30 }}</p>{% endif %}
+                <div class="event-visual-body">
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-visual-venue">{{ event.venue }}</p>
+                    <p class="event-visual-city">{{ event.city }} &bull; {{ event.date|date:"H:i" }}</p>
+                    {% if event.description %}
+                        <div class="event-visual-desc">{{ event.description|truncatewords:25 }}</div>
+                    {% endif %}
                     {% if event.ticket_url and not event.is_cancelled %}
                         <a href="{{ event.ticket_url }}" class="btn btn-small" target="_blank" rel="noopener">Billetterie</a>
                     {% endif %}
                 </div>
-                {% if event.poster %}
-                <div class="event-poster">
-                    <img src="{{ event.poster.url }}" alt="{{ event.title }}" loading="lazy">
-                </div>
-                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -49,17 +60,27 @@
 
         {% if past_events %}
         <h2 class="section-title" style="margin-top: 3rem;">Dates passées</h2>
-        <div class="events-list events-past">
+        <div class="events-cards-grid">
             {% for event in past_events %}
-            <div class="event-card event-card-full event-card-past">
-                <div class="event-date-badge">
-                    <span class="day">{{ event.date|date:"d" }}</span>
-                    <span class="month">{{ event.date|date:"M" }}</span>
-                    <span class="year">{{ event.date|date:"Y" }}</span>
+            <div class="event-visual-card event-visual-card-past">
+                <div class="event-visual-image">
+                    {% if event.poster %}
+                    <img src="{{ event.poster.url }}" alt="{{ event.title }}" loading="lazy">
+                    {% else %}
+                    <div class="event-visual-placeholder">
+                        <span class="event-visual-placeholder-icon">&#9835;</span>
+                    </div>
+                    {% endif %}
+                    <div class="event-visual-date-badge">
+                        <span class="day">{{ event.date|date:"d" }}</span>
+                        <span class="month">{{ event.date|date:"M" }}</span>
+                        <span class="year">{{ event.date|date:"Y" }}</span>
+                    </div>
                 </div>
-                <div class="event-info">
+                <div class="event-visual-body">
                     <h3>{{ event.title }}</h3>
-                    <p class="event-venue">{{ event.venue }} – {{ event.city }}</p>
+                    <p class="event-visual-venue">{{ event.venue }}</p>
+                    <p class="event-visual-city">{{ event.city }}</p>
                 </div>
             </div>
             {% endfor %}
