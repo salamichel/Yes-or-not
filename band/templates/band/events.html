@@ -48,9 +48,14 @@
                     {% if event.description %}
                         <div class="event-visual-desc">{{ event.description|truncatewords:25 }}</div>
                     {% endif %}
-                    {% if event.ticket_url and not event.is_cancelled %}
-                        <a href="{{ event.ticket_url }}" class="btn btn-small" target="_blank" rel="noopener">Billetterie</a>
-                    {% endif %}
+                    <div class="event-visual-actions">
+                        {% if event.ticket_url and not event.is_cancelled %}
+                            <a href="{{ event.ticket_url }}" class="btn btn-small" target="_blank" rel="noopener">Billetterie</a>
+                        {% endif %}
+                        {% if event.media.count %}
+                            <a href="{% url 'event_detail' event.slug %}" class="btn btn-small btn-outline">Galerie</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endfor %}
@@ -82,6 +87,9 @@
                     <h3>{{ event.title }}</h3>
                     <p class="event-visual-venue">{{ event.venue }}</p>
                     <p class="event-visual-city">{{ event.city }}</p>
+                    {% if event.media.count %}
+                        <a href="{% url 'event_detail' event.slug %}" class="btn btn-small btn-outline">Galerie</a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}

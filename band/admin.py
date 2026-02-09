@@ -1,7 +1,8 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import (
     SiteSettings, Member, MemberPortfolioItem, MemberPhoto, Album, Track,
-    Video, Event, ContactMessage, Page,
+    Video, Event, EventMedia, ContactMessage, Page,
 )
 
 
@@ -70,12 +71,36 @@ class VideoAdmin(admin.ModelAdmin):
         return "MP4" if obj.is_mp4 else "Embed"
 
 
+class EventMediaInline(admin.TabularInline):
+    model = EventMedia
+    extra = 0
+    fields = ("media_type", "image", "video_file", "caption", "order", "preview")
+    readonly_fields = ("preview",)
+
+    def preview(self, obj):
+        if obj.pk and obj.image:
+            return format_html('<img src="{}" style="max-height:80px;border-radius:4px;">', obj.image.url)
+        return "-"
+    preview.short_description = "Aperçu"
+
+    class Media:
+        css = {"all": ("css/admin-dropzone.css",)}
+        js = ("js/admin-dropzone.js",)
+
+
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("title", "date", "venue", "city", "is_cancelled")
+    list_display = ("title", "slug", "date", "venue", "city", "media_count", "is_cancelled")
     list_editable = ("is_cancelled",)
     list_filter = ("is_cancelled", "city")
     search_fields = ("title", "venue", "city")
+    prepopulated_fields = {"slug": ("title",)}
+    inlines = [EventMediaInline]
+
+    @admin.display(description="Médias")
+    def media_count(self, obj):
+        count = obj.media.count()
+        return f"{count} média{'s' if count > 1 else ''}" if count else "-"
 
 
 @admin.register(ContactMessage)

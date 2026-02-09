@@ -1,0 +1,130 @@
+{% extends "band/base.html" %}
+{% load static %}
+
+{% block title %}{{ settings.band_name }} – {{ event.title }}{% endblock %}
+
+{% block content %}
+<section class="page-header" {% if event.poster %}style="background-image: url('{{ event.poster.url }}')"{% endif %}>
+    <div class="container">
+        <h1>{{ event.title }}</h1>
+        <p class="page-subtitle">{{ event.venue }} – {{ event.city }} &bull; {{ event.date|date:"d/m/Y à H:i" }}</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if event.description %}
+            <div class="editorial-content">{{ event.description|safe }}</div>
+        {% endif %}
+
+        {% if event.ticket_url and event.is_upcoming and not event.is_cancelled %}
+            <div style="text-align:center;margin-bottom:3rem;">
+                <a href="{{ event.ticket_url }}" class="btn btn-primary" target="_blank" rel="noopener">Billetterie</a>
+            </div>
+        {% endif %}
+
+        {% if photos %}
+        <h2 class="section-title">Galerie photos</h2>
+        <div class="event-gallery-grid">
+            {% for media in photos %}
+            <div class="gallery-item" data-index="{{ forloop.counter0 }}">
+                <img src="{{ media.image.url }}" alt="{{ media.caption|default:event.title }}" loading="lazy">
+                {% if media.caption %}
+                <div class="gallery-caption">{{ media.caption }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if videos %}
+        <h2 class="section-title" {% if photos %}style="margin-top:3rem;"{% endif %}>Vidéos</h2>
+        <div class="event-videos-grid">
+            {% for media in videos %}
+            <div class="event-video-item">
+                <div class="video-embed">
+                    <video controls preload="metadata">
+                        <source src="{{ media.video_file.url }}" type="video/mp4">
+                    </video>
+                </div>
+                {% if media.caption %}
+                <p class="event-video-caption">{{ media.caption }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if not photos and not videos %}
+            <p class="empty-state">Pas encore de médias pour cet événement.</p>
+        {% endif %}
+
+        <div style="text-align:center;margin-top:3rem;">
+            <a href="{% url 'events' %}" class="btn btn-outline">Retour aux dates</a>
+        </div>
+    </div>
+</section>
+
+<!-- Lightbox -->
+<div class="lightbox" id="eventLightbox">
+    <button class="lightbox-close" aria-label="Fermer">&times;</button>
+    <button class="lightbox-prev" aria-label="Précédent">&#10094;</button>
+    <button class="lightbox-next" aria-label="Suivant">&#10095;</button>
+    <div class="lightbox-content">
+        <img src="" alt="">
+        <div class="lightbox-caption"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var items = document.querySelectorAll('.event-gallery-grid .gallery-item');
+    if (!items.length) return;
+
+    var lightbox = document.getElementById('eventLightbox');
+    var lbImg = lightbox.querySelector('.lightbox-content img');
+    var lbCaption = lightbox.querySelector('.lightbox-caption');
+    var current = 0;
+
+    function show(idx) {
+        current = idx;
+        var item = items[idx];
+        var img = item.querySelector('img');
+        var cap = item.querySelector('.gallery-caption');
+        lbImg.src = img.src;
+        lbImg.alt = img.alt;
+        lbCaption.textContent = cap ? cap.textContent : '';
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hide() {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    items.forEach(function(item, i) {
+        item.addEventListener('click', function() { show(i); });
+    });
+
+    lightbox.querySelector('.lightbox-close').addEventListener('click', hide);
+    lightbox.querySelector('.lightbox-prev').addEventListener('click', function() {
+        show((current - 1 + items.length) % items.length);
+    });
+    lightbox.querySelector('.lightbox-next').addEventListener('click', function() {
+        show((current + 1) % items.length);
+    });
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox) hide();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'Escape') hide();
+        if (e.key === 'ArrowLeft') show((current - 1 + items.length) % items.length);
+        if (e.key === 'ArrowRight') show((current + 1) % items.length);
+    });
+})();
+</script>
+{% endblock %}

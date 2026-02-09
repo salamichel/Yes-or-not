@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 from django_ckeditor_5.fields import CKEditor5Field
 
 from band.images import optimize_image
@@ -171,6 +172,8 @@ class Video(models.Model):
 
 class Event(models.Model):
     title = models.CharField(max_length=300, verbose_name="Titre / Nom de l'événement")
+    slug = models.SlugField(max_length=350, unique=True, blank=True, verbose_name="Slug URL",
+                            help_text="Généré automatiquement à partir du titre. Modifiable.")
     date = models.DateTimeField(verbose_name="Date et heure")
     venue = models.CharField(max_length=300, verbose_name="Lieu")
     city = models.CharField(max_length=200, verbose_name="Ville")
@@ -188,12 +191,41 @@ class Event(models.Model):
         return f"{self.title} – {self.date:%d/%m/%Y}"
 
     def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title) or "evenement"
+            slug = base_slug
+            n = 1
+            while Event.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{n}"
+                n += 1
+            self.slug = slug
         optimize_image(self.poster)
         super().save(*args, **kwargs)
 
     @property
     def is_upcoming(self):
         return self.date >= timezone.now()
+
+
+class EventMedia(models.Model):
+    MEDIA_TYPE_CHOICES = [
+        ("photo", "Photo"),
+        ("video", "Vidéo"),
+    ]
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="media")
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES, default="photo", verbose_name="Type")
+    image = models.ImageField(upload_to="events/gallery/", blank=True, null=True, verbose_name="Photo")
+    video_file = models.FileField(upload_to="events/gallery/videos/", blank=True, null=True, verbose_name="Fichier vidéo (MP4)")
+    caption = models.CharField(max_length=300, blank=True, verbose_name="Légende")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordre")
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "Média de l'événement"
+        verbose_name_plural = "Galerie média"
+
+    def __str__(self):
+        return self.caption or f"{self.get_media_type_display()} {self.pk}"
 
 
 class ContactMessage(models.Model):
