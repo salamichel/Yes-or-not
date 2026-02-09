@@ -55,7 +55,9 @@ def optimize_image(image_field, max_dimension=MAX_DIMENSION):
                 image_field.name = base + ".jpg"
 
         buffer.seek(0)
-        image_field.save(image_field.name, ContentFile(buffer.read()), save=False)
+        # Use only the basename to avoid path duplication from upload_to
+        filename = os.path.basename(image_field.name)
+        image_field.save(filename, ContentFile(buffer.read()), save=False)
         return True
 
     return False
