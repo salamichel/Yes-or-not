@@ -228,6 +228,42 @@ class EventMedia(models.Model):
         return self.caption or f"{self.get_media_type_display()} {self.pk}"
 
 
+class Song(models.Model):
+    title = models.CharField(max_length=300, verbose_name="Titre")
+    artist = models.CharField(max_length=300, verbose_name="Artiste")
+    youtube_url = models.URLField(blank=True, verbose_name="URL YouTube")
+    audio_file = models.FileField(
+        upload_to="songs/mp3/", blank=True, null=True,
+        verbose_name="Enregistrement MP3",
+        help_text="Fichier MP3 du morceau",
+    )
+    notes = models.TextField(blank=True, verbose_name="Notes")
+
+    class Meta:
+        ordering = ["artist", "title"]
+        verbose_name = "Morceau (répertoire)"
+        verbose_name_plural = "Morceaux (répertoire)"
+        unique_together = [("title", "artist")]
+
+    def __str__(self):
+        return f"{self.artist} – {self.title}"
+
+
+class SetlistEntry(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="setlist_entries")
+    song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name="setlist_entries")
+    position = models.PositiveIntegerField(verbose_name="Ordre de passage")
+
+    class Meta:
+        ordering = ["position"]
+        verbose_name = "Morceau de la setlist"
+        verbose_name_plural = "Setlist"
+        unique_together = [("event", "song"), ("event", "position")]
+
+    def __str__(self):
+        return f"{self.position}. {self.song}"
+
+
 class ContactMessage(models.Model):
     name = models.CharField(max_length=200, verbose_name="Nom")
     email = models.EmailField(verbose_name="Email")

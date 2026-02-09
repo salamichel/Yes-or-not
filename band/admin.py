@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     SiteSettings, Member, MemberPortfolioItem, MemberPhoto, Album, Track,
-    Video, Event, EventMedia, ContactMessage, Page,
+    Video, Event, EventMedia, ContactMessage, Page, Song, SetlistEntry,
 )
 
 
@@ -71,6 +71,27 @@ class VideoAdmin(admin.ModelAdmin):
         return "MP4" if obj.is_mp4 else "Embed"
 
 
+@admin.register(Song)
+class SongAdmin(admin.ModelAdmin):
+    list_display = ("title", "artist", "has_youtube", "has_audio")
+    list_filter = ("artist",)
+    search_fields = ("title", "artist")
+
+    @admin.display(boolean=True, description="YouTube")
+    def has_youtube(self, obj):
+        return bool(obj.youtube_url)
+
+    @admin.display(boolean=True, description="MP3")
+    def has_audio(self, obj):
+        return bool(obj.audio_file)
+
+
+class SetlistEntryInline(admin.TabularInline):
+    model = SetlistEntry
+    extra = 3
+    autocomplete_fields = ["song"]
+
+
 class EventMediaInline(admin.TabularInline):
     model = EventMedia
     extra = 0
@@ -95,7 +116,7 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ("is_cancelled", "city")
     search_fields = ("title", "venue", "city")
     prepopulated_fields = {"slug": ("title",)}
-    inlines = [EventMediaInline]
+    inlines = [SetlistEntryInline, EventMediaInline]
 
     @admin.display(description="Médias")
     def media_count(self, obj):
