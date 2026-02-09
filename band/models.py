@@ -168,6 +168,27 @@ class Event(models.Model):
         return self.date >= timezone.now()
 
 
+class EventMedia(models.Model):
+    MEDIA_TYPE_CHOICES = [
+        ("photo", "Photo"),
+        ("video", "Vidéo"),
+    ]
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="media")
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES, default="photo", verbose_name="Type")
+    image = models.ImageField(upload_to="events/gallery/", blank=True, null=True, verbose_name="Photo")
+    video_file = models.FileField(upload_to="events/gallery/videos/", blank=True, null=True, verbose_name="Fichier vidéo (MP4)")
+    caption = models.CharField(max_length=300, blank=True, verbose_name="Légende")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordre")
+
+    class Meta:
+        ordering = ["order"]
+        verbose_name = "Média de l'événement"
+        verbose_name_plural = "Galerie média"
+
+    def __str__(self):
+        return self.caption or f"{self.get_media_type_display()} {self.pk}"
+
+
 class ContactMessage(models.Model):
     name = models.CharField(max_length=200, verbose_name="Nom")
     email = models.EmailField(verbose_name="Email")

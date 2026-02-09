@@ -5,7 +5,7 @@ from django.conf import settings as django_settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.contrib import messages
-from .models import SiteSettings, Member, Album, Video, Event, ContactMessage, Page
+from .models import SiteSettings, Member, Album, Video, Event, EventMedia, ContactMessage, Page
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +77,14 @@ def events_list(request):
     ctx["upcoming_events"] = Event.objects.filter(date__gte=now)
     ctx["past_events"] = Event.objects.filter(date__lt=now).order_by("-date")
     return render(request, "band/events.html", ctx)
+
+
+def event_detail(request, pk):
+    ctx = get_context("events")
+    ctx["event"] = get_object_or_404(Event, pk=pk)
+    ctx["photos"] = ctx["event"].media.filter(media_type="photo")
+    ctx["videos"] = ctx["event"].media.filter(media_type="video")
+    return render(request, "band/event_detail.html", ctx)
 
 
 def _send_brevo_email(name, email, subject, message_text):
