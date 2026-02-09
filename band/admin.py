@@ -86,7 +86,7 @@ class SheetMusicInline(admin.TabularInline):
 
 @admin.register(Song)
 class SongAdmin(admin.ModelAdmin):
-    list_display = ("title", "artist", "has_youtube", "has_audio", "has_lyrics", "sheets_count")
+    list_display = ("title", "artist", "duration", "has_youtube", "has_audio", "has_lyrics", "sheets_count")
     list_filter = ("artist",)
     search_fields = ("title", "artist")
     inlines = [SheetMusicInline]

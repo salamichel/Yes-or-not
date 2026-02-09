@@ -237,6 +237,7 @@ class Song(models.Model):
         verbose_name="Enregistrement MP3",
         help_text="Fichier MP3 du morceau",
     )
+    duration = models.CharField(max_length=10, blank=True, verbose_name="Durée (ex: 3:45)")
     lyrics = models.TextField(blank=True, verbose_name="Paroles")
     notes = models.TextField(blank=True, verbose_name="Notes")
 
