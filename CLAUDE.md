@@ -155,6 +155,12 @@ Accessible via `/admin/`. Toutes les sections sont administrables :
 - **Responsive** : breakpoint principal à 768px, grilles CSS adaptatives
 - **Typographie** : Segoe UI (corps) + Georgia (titres)
 
+## Déploiement / Docker
+
+- **Pas d'accès SSH à la machine** : le container se recompile à chaque commit via CI/CD.
+- Toute commande de management (migrations de données, scripts ponctuels, etc.) **doit être ajoutée dans `entrypoint.sh`** pour être exécutée automatiquement au démarrage du container.
+- L'`entrypoint.sh` exécute dans l'ordre : wait DB → `migrate` → `collectstatic` → `optimize_images` → Gunicorn.
+
 ## Conventions de code
 
 - Langue du code : **anglais** (noms de modèles, vues, URLs)
@@ -168,6 +174,6 @@ Accessible via `/admin/`. Toutes les sections sont administrables :
 - [ ] Configurer HTTPS (Let's Encrypt / Certbot dans Nginx)
 - [ ] Configurer le stockage media (S3 ou équivalent) pour la production
 - [ ] Ajouter des tests unitaires
-- [ ] Optimiser les images (thumbnails automatiques)
+- [x] Optimiser les images (thumbnails automatiques)
 - [ ] SEO : meta descriptions, Open Graph tags
 - [ ] Ajouter un sitemap.xml et robots.txt

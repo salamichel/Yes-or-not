@@ -14,5 +14,8 @@ python manage.py migrate --noinput
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
+echo "Optimizing images and generating thumbnails..."
+python manage.py optimize_images
+
 echo "Starting server..."
 exec "$@"

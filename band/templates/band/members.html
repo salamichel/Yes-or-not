@@ -1,4 +1,5 @@
 {% extends "band/base.html" %}
+{% load thumbnails %}
 
 {% block title %}{{ settings.band_name }} – Membres{% endblock %}
 
@@ -20,7 +21,7 @@
             <a href="{% url 'member_detail' member.pk %}" class="member-card">
                 <div class="member-avatar">
                     {% if member.avatar %}
-                        <img src="{{ member.avatar.url }}" alt="{{ member.first_name }} {{ member.last_name }}" loading="lazy">
+                        <img src="{{ member.avatar|thumbnail:'400x400' }}" alt="{{ member.first_name }} {{ member.last_name }}" loading="lazy">
                     {% else %}
                         <div class="avatar-placeholder">{{ member.first_name|first }}{{ member.last_name|first }}</div>
                     {% endif %}

@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django_ckeditor_5.fields import CKEditor5Field
 
+from band.images import optimize_image
+
 
 class SiteSettings(models.Model):
     band_name = models.CharField(max_length=200, default="Yes or Not")
@@ -25,6 +27,8 @@ class SiteSettings(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        optimize_image(self.hero_image)
+        optimize_image(self.logo, max_dimension=512)
         super().save(*args, **kwargs)
 
     @classmethod
@@ -51,6 +55,10 @@ class Member(models.Model):
         name = f"{self.first_name} {self.last_name}".strip()
         return f"{name} – {self.role}"
 
+    def save(self, *args, **kwargs):
+        optimize_image(self.avatar, max_dimension=800)
+        super().save(*args, **kwargs)
+
 
 class MemberPortfolioItem(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="portfolio_items")
@@ -68,6 +76,10 @@ class MemberPortfolioItem(models.Model):
     def __str__(self):
         return f"{self.member} – {self.title}"
 
+    def save(self, *args, **kwargs):
+        optimize_image(self.image)
+        super().save(*args, **kwargs)
+
 
 class MemberPhoto(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE, related_name="photos")
@@ -82,6 +94,10 @@ class MemberPhoto(models.Model):
 
     def __str__(self):
         return self.caption or f"Photo {self.pk}"
+
+    def save(self, *args, **kwargs):
+        optimize_image(self.image)
+        super().save(*args, **kwargs)
 
 
 class Album(models.Model):
@@ -101,6 +117,10 @@ class Album(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        optimize_image(self.cover)
+        super().save(*args, **kwargs)
 
 
 class Track(models.Model):
@@ -141,6 +161,10 @@ class Video(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        optimize_image(self.thumbnail, max_dimension=1280)
+        super().save(*args, **kwargs)
+
     @property
     def is_mp4(self):
         return bool(self.video_file)
@@ -175,6 +199,7 @@ class Event(models.Model):
                 slug = f"{base_slug}-{n}"
                 n += 1
             self.slug = slug
+        optimize_image(self.poster)
         super().save(*args, **kwargs)
 
     @property
@@ -242,3 +267,7 @@ class Page(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        optimize_image(self.banner_image)
+        super().save(*args, **kwargs)
