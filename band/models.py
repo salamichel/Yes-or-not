@@ -250,9 +250,22 @@ class Song(models.Model):
         return f"{self.artist} – {self.title}"
 
 
+class Instrument(models.Model):
+    name = models.CharField(max_length=200, unique=True, verbose_name="Nom")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordre d'affichage")
+
+    class Meta:
+        ordering = ["order", "name"]
+        verbose_name = "Instrument"
+        verbose_name_plural = "Instruments"
+
+    def __str__(self):
+        return self.name
+
+
 class SheetMusic(models.Model):
     song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name="sheets")
-    instrument = models.CharField(max_length=200, verbose_name="Instrument")
+    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE, verbose_name="Instrument")
     file = models.FileField(
         upload_to="songs/sheets/",
         verbose_name="Fichier (PDF, image…)",
@@ -260,7 +273,7 @@ class SheetMusic(models.Model):
     )
 
     class Meta:
-        ordering = ["instrument"]
+        ordering = ["instrument__order", "instrument__name"]
         verbose_name = "Partition"
         verbose_name_plural = "Partitions"
         unique_together = [("song", "instrument")]

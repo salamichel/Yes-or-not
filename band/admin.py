@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     SiteSettings, Member, MemberPortfolioItem, MemberPhoto, Album, Track,
-    Video, Event, EventMedia, ContactMessage, Page, Song, SheetMusic, SetlistEntry,
+    Video, Event, EventMedia, ContactMessage, Page, Song, Instrument, SheetMusic, SetlistEntry,
 )
 
 
@@ -71,9 +71,17 @@ class VideoAdmin(admin.ModelAdmin):
         return "MP4" if obj.is_mp4 else "Embed"
 
 
+@admin.register(Instrument)
+class InstrumentAdmin(admin.ModelAdmin):
+    list_display = ("name", "order")
+    list_editable = ("order",)
+    search_fields = ("name",)
+
+
 class SheetMusicInline(admin.TabularInline):
     model = SheetMusic
     extra = 1
+    autocomplete_fields = ["instrument"]
 
 
 @admin.register(Song)
