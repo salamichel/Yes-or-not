@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     SiteSettings, Member, MemberPortfolioItem, MemberPhoto, Album, Track,
-    Video, Event, EventMedia, ContactMessage, Page, Song, Instrument, SheetMusic, SetlistEntry,
+    Video, Event, EventMedia, ContactMessage, Page, Artist, Song, Instrument, SheetMusic, SetlistEntry,
 )
 
 
@@ -78,6 +78,12 @@ class InstrumentAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 
+@admin.register(Artist)
+class ArtistAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+
 class SheetMusicInline(admin.TabularInline):
     model = SheetMusic
     extra = 1
@@ -88,7 +94,8 @@ class SheetMusicInline(admin.TabularInline):
 class SongAdmin(admin.ModelAdmin):
     list_display = ("title", "artist", "duration", "has_youtube", "has_audio", "has_lyrics", "sheets_count")
     list_filter = ("artist",)
-    search_fields = ("title", "artist")
+    search_fields = ("title", "artist__name")
+    autocomplete_fields = ["artist"]
     inlines = [SheetMusicInline]
 
     @admin.display(boolean=True, description="YouTube")
