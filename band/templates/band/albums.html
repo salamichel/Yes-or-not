@@ -1,4 +1,5 @@
 {% extends "band/base.html" %}
+{% load thumbnails %}
 
 {% block title %}{{ settings.band_name }} – Albums{% endblock %}
 
@@ -20,7 +21,7 @@
             {% for album in albums %}
             <a href="{% url 'album_detail' album.pk %}" class="album-card">
                 {% if album.cover %}
-                    <img src="{{ album.cover.url }}" alt="{{ album.title }}" loading="lazy">
+                    <img src="{{ album.cover|thumbnail:'400x400' }}" alt="{{ album.title }}" loading="lazy">
                 {% else %}
                     <div class="album-placeholder"></div>
                 {% endif %}

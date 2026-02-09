@@ -1,4 +1,5 @@
 {% extends "band/base.html" %}
+{% load thumbnails %}
 
 {% block title %}{{ member.first_name }} {{ member.last_name }} – {{ settings.band_name }}{% endblock %}
 
@@ -37,7 +38,7 @@
         <div class="gallery-grid">
             {% for photo in member.photos.all %}
             <a href="{{ photo.image.url }}" class="gallery-item" data-lightbox>
-                <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" loading="lazy">
+                <img src="{{ photo.image|thumbnail:'400x400' }}" alt="{{ photo.caption }}" loading="lazy">
                 {% if photo.caption %}
                     <span class="gallery-caption">{{ photo.caption }}</span>
                 {% endif %}
@@ -56,7 +57,7 @@
             {% for item in member.portfolio_items.all %}
             <div class="portfolio-item">
                 {% if item.image %}
-                    <img src="{{ item.image.url }}" alt="{{ item.title }}" loading="lazy">
+                    <img src="{{ item.image|thumbnail:'600x400' }}" alt="{{ item.title }}" loading="lazy">
                 {% endif %}
                 {% if item.video_url %}
                     <div class="video-embed">

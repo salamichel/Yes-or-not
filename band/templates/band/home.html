@@ -1,5 +1,5 @@
 {% extends "band/base.html" %}
-{% load static %}
+{% load static thumbnails %}
 
 {% block title %}{{ settings.band_name }} – Accueil{% endblock %}
 
@@ -45,7 +45,7 @@
             <a href="{% url 'member_detail' member.pk %}" class="member-showcase-item reveal">
                 <div class="member-showcase-img">
                     {% if member.avatar %}
-                        <img src="{{ member.avatar.url }}" alt="{{ member.first_name }}" loading="lazy">
+                        <img src="{{ member.avatar|thumbnail:'400x400' }}" alt="{{ member.first_name }}" loading="lazy">
                     {% else %}
                         <div class="avatar-placeholder">{{ member.first_name|first }}</div>
                     {% endif %}
@@ -81,7 +81,7 @@
             <a href="{% url 'album_detail' album.pk %}" class="album-showcase-item reveal">
                 <div class="album-showcase-cover">
                     {% if album.cover %}
-                        <img src="{{ album.cover.url }}" alt="{{ album.title }}" loading="lazy">
+                        <img src="{{ album.cover|thumbnail:'400x400' }}" alt="{{ album.title }}" loading="lazy">
                     {% else %}
                         <div class="album-placeholder"></div>
                     {% endif %}
