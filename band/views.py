@@ -81,9 +81,12 @@ def events_list(request):
 
 def event_detail(request, slug):
     ctx = get_context("events")
-    ctx["event"] = get_object_or_404(Event, slug=slug)
-    ctx["photos"] = ctx["event"].media.filter(media_type="photo")
-    ctx["videos"] = ctx["event"].media.filter(media_type="video")
+    event = get_object_or_404(Event, slug=slug)
+    ctx["event"] = event
+    ctx["photos"] = event.media.filter(media_type="photo")
+    ctx["videos"] = event.media.filter(media_type="video")
+    if not event.is_upcoming:
+        ctx["setlist"] = event.setlist_entries.select_related("song")
     return render(request, "band/event_detail.html", ctx)
 
 

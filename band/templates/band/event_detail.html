@@ -23,6 +23,19 @@
             </div>
         {% endif %}
 
+        {% if setlist %}
+        <h2 class="section-title">Setlist</h2>
+        <ol class="setlist">
+            {% for entry in setlist %}
+            <li class="setlist-item">
+                <span class="setlist-title">{{ entry.song.title }}</span>
+                <span class="setlist-artist">{{ entry.song.artist }}</span>
+                {% if entry.song.duration %}<span class="setlist-duration">{{ entry.song.duration }}</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ol>
+        {% endif %}
+
         {% if photos %}
         <h2 class="section-title">Galerie photos</h2>
         <div class="event-gallery-grid">
