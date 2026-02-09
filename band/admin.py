@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     SiteSettings, Member, MemberPortfolioItem, MemberPhoto, Album, Track,
-    Video, Event, EventMedia, ContactMessage, Page,
+    Video, Event, EventMedia, ContactMessage, Page, Song, Instrument, SheetMusic, SetlistEntry,
 )
 
 
@@ -71,6 +71,50 @@ class VideoAdmin(admin.ModelAdmin):
         return "MP4" if obj.is_mp4 else "Embed"
 
 
+@admin.register(Instrument)
+class InstrumentAdmin(admin.ModelAdmin):
+    list_display = ("name", "order")
+    list_editable = ("order",)
+    search_fields = ("name",)
+
+
+class SheetMusicInline(admin.TabularInline):
+    model = SheetMusic
+    extra = 1
+    autocomplete_fields = ["instrument"]
+
+
+@admin.register(Song)
+class SongAdmin(admin.ModelAdmin):
+    list_display = ("title", "artist", "duration", "has_youtube", "has_audio", "has_lyrics", "sheets_count")
+    list_filter = ("artist",)
+    search_fields = ("title", "artist")
+    inlines = [SheetMusicInline]
+
+    @admin.display(boolean=True, description="YouTube")
+    def has_youtube(self, obj):
+        return bool(obj.youtube_url)
+
+    @admin.display(boolean=True, description="MP3")
+    def has_audio(self, obj):
+        return bool(obj.audio_file)
+
+    @admin.display(boolean=True, description="Paroles")
+    def has_lyrics(self, obj):
+        return bool(obj.lyrics)
+
+    @admin.display(description="Partitions")
+    def sheets_count(self, obj):
+        count = obj.sheets.count()
+        return count or "-"
+
+
+class SetlistEntryInline(admin.TabularInline):
+    model = SetlistEntry
+    extra = 3
+    autocomplete_fields = ["song"]
+
+
 class EventMediaInline(admin.TabularInline):
     model = EventMedia
     extra = 0
@@ -95,7 +139,7 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ("is_cancelled", "city")
     search_fields = ("title", "venue", "city")
     prepopulated_fields = {"slug": ("title",)}
-    inlines = [EventMediaInline]
+    inlines = [SetlistEntryInline, EventMediaInline]
 
     @admin.display(description="Médias")
     def media_count(self, obj):

@@ -228,6 +228,76 @@ class EventMedia(models.Model):
         return self.caption or f"{self.get_media_type_display()} {self.pk}"
 
 
+class Song(models.Model):
+    title = models.CharField(max_length=300, verbose_name="Titre")
+    artist = models.CharField(max_length=300, verbose_name="Artiste")
+    youtube_url = models.URLField(blank=True, verbose_name="URL YouTube")
+    audio_file = models.FileField(
+        upload_to="songs/mp3/", blank=True, null=True,
+        verbose_name="Enregistrement MP3",
+        help_text="Fichier MP3 du morceau",
+    )
+    duration = models.CharField(max_length=10, blank=True, verbose_name="Durée (ex: 3:45)")
+    lyrics = models.TextField(blank=True, verbose_name="Paroles")
+    notes = models.TextField(blank=True, verbose_name="Notes")
+
+    class Meta:
+        ordering = ["artist", "title"]
+        verbose_name = "Morceau (répertoire)"
+        verbose_name_plural = "Morceaux (répertoire)"
+        unique_together = [("title", "artist")]
+
+    def __str__(self):
+        return f"{self.artist} – {self.title}"
+
+
+class Instrument(models.Model):
+    name = models.CharField(max_length=200, unique=True, verbose_name="Nom")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordre d'affichage")
+
+    class Meta:
+        ordering = ["order", "name"]
+        verbose_name = "Instrument"
+        verbose_name_plural = "Instruments"
+
+    def __str__(self):
+        return self.name
+
+
+class SheetMusic(models.Model):
+    song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name="sheets")
+    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE, verbose_name="Instrument")
+    file = models.FileField(
+        upload_to="songs/sheets/",
+        verbose_name="Fichier (PDF, image…)",
+        help_text="Partition au format PDF ou image",
+    )
+
+    class Meta:
+        ordering = ["instrument__order", "instrument__name"]
+        verbose_name = "Partition"
+        verbose_name_plural = "Partitions"
+        unique_together = [("song", "instrument")]
+
+    def __str__(self):
+        return f"{self.song.title} – {self.instrument}"
+
+
+class SetlistEntry(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="setlist_entries")
+    song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name="setlist_entries")
+    position = models.PositiveIntegerField(verbose_name="Ordre de passage")
+
+    class Meta:
+        ordering = ["position"]
+        verbose_name = "Morceau de la setlist"
+        verbose_name_plural = "Setlist"
+        unique_together = [("event", "song"), ("event", "position")]
+
+    def __str__(self):
+        return f"{self.position}. {self.song}"
+
+
 class ContactMessage(models.Model):
     name = models.CharField(max_length=200, verbose_name="Nom")
     email = models.EmailField(verbose_name="Email")
