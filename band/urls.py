@@ -10,6 +10,6 @@ urlpatterns = [
     path("albums/<int:pk>/", views.album_detail, name="album_detail"),
     path("videos/", views.videos_list, name="videos"),
     path("dates/", views.events_list, name="events"),
-    path("dates/<int:pk>/", views.event_detail, name="event_detail"),
+    path("dates/<slug:slug>/", views.event_detail, name="event_detail"),
     path("contact/", views.contact, name="contact"),
 ]

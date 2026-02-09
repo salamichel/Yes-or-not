@@ -52,7 +52,7 @@
                             <a href="{{ event.ticket_url }}" class="btn btn-small" target="_blank" rel="noopener">Billetterie</a>
                         {% endif %}
                         {% if event.media.count %}
-                            <a href="{% url 'event_detail' event.pk %}" class="btn btn-small btn-outline">Galerie</a>
+                            <a href="{% url 'event_detail' event.slug %}" class="btn btn-small btn-outline">Galerie</a>
                         {% endif %}
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                     <p class="event-visual-venue">{{ event.venue }}</p>
                     <p class="event-visual-city">{{ event.city }}</p>
                     {% if event.media.count %}
-                        <a href="{% url 'event_detail' event.pk %}" class="btn btn-small btn-outline">Galerie</a>
+                        <a href="{% url 'event_detail' event.slug %}" class="btn btn-small btn-outline">Galerie</a>
                     {% endif %}
                 </div>
             </div>

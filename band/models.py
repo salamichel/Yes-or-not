@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 from django_ckeditor_5.fields import CKEditor5Field
 
 
@@ -147,6 +148,8 @@ class Video(models.Model):
 
 class Event(models.Model):
     title = models.CharField(max_length=300, verbose_name="Titre / Nom de l'événement")
+    slug = models.SlugField(max_length=350, unique=True, blank=True, verbose_name="Slug URL",
+                            help_text="Généré automatiquement à partir du titre. Modifiable.")
     date = models.DateTimeField(verbose_name="Date et heure")
     venue = models.CharField(max_length=300, verbose_name="Lieu")
     city = models.CharField(max_length=200, verbose_name="Ville")
@@ -162,6 +165,17 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.title} – {self.date:%d/%m/%Y}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title) or "evenement"
+            slug = base_slug
+            n = 1
+            while Event.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base_slug}-{n}"
+                n += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     @property
     def is_upcoming(self):

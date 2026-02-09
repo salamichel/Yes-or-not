@@ -90,10 +90,11 @@ class EventMediaInline(admin.TabularInline):
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("title", "date", "venue", "city", "media_count", "is_cancelled")
+    list_display = ("title", "slug", "date", "venue", "city", "media_count", "is_cancelled")
     list_editable = ("is_cancelled",)
     list_filter = ("is_cancelled", "city")
     search_fields = ("title", "venue", "city")
+    prepopulated_fields = {"slug": ("title",)}
     inlines = [EventMediaInline]
 
     @admin.display(description="Médias")

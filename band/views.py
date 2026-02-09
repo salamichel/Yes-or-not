@@ -79,9 +79,9 @@ def events_list(request):
     return render(request, "band/events.html", ctx)
 
 
-def event_detail(request, pk):
+def event_detail(request, slug):
     ctx = get_context("events")
-    ctx["event"] = get_object_or_404(Event, pk=pk)
+    ctx["event"] = get_object_or_404(Event, slug=slug)
     ctx["photos"] = ctx["event"].media.filter(media_type="photo")
     ctx["videos"] = ctx["event"].media.filter(media_type="video")
     return render(request, "band/event_detail.html", ctx)
