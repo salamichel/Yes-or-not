@@ -26,7 +26,7 @@ else:
     ]
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    "band.admin_config.BandAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
