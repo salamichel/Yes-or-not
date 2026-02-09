@@ -26,12 +26,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Step 1: add slug field without unique constraint
+        # Step 1: add slug field without unique constraint (db_index=False
+        # to avoid creating _like index that conflicts with step 3's unique)
         migrations.AddField(
             model_name="event",
             name="slug",
             field=models.SlugField(
                 blank=True,
+                db_index=False,
                 default="",
                 help_text="Généré automatiquement à partir du titre. Modifiable.",
                 max_length=350,
