@@ -1,0 +1,222 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    .metrics-dashboard {
+        margin-bottom: 30px;
+    }
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .metric-card {
+        background: var(--body-bg, #fff);
+        border: 1px solid var(--hairline-color, #ddd);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        transition: box-shadow 0.2s ease;
+    }
+    .metric-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .metric-value {
+        font-size: 2.2em;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 4px;
+    }
+    .metric-label {
+        font-size: 0.85em;
+        color: var(--body-quiet-color, #666);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .metric-card.members .metric-value { color: #2196F3; }
+    .metric-card.albums .metric-value { color: #9C27B0; }
+    .metric-card.tracks .metric-value { color: #673AB7; }
+    .metric-card.videos .metric-value { color: #E91E63; }
+    .metric-card.events-upcoming .metric-value { color: #4CAF50; }
+    .metric-card.events-past .metric-value { color: #607D8B; }
+    .metric-card.messages-unread .metric-value { color: #FF5722; }
+    .metric-card.messages-total .metric-value { color: #795548; }
+
+    .metrics-section-title {
+        font-size: 1.1em;
+        font-weight: 600;
+        margin: 24px 0 12px 0;
+        padding-bottom: 6px;
+        border-bottom: 2px solid var(--hairline-color, #ddd);
+        color: var(--body-quiet-color, #666);
+    }
+
+    .metrics-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    @media (max-width: 768px) {
+        .metrics-details {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .detail-panel {
+        background: var(--body-bg, #fff);
+        border: 1px solid var(--hairline-color, #ddd);
+        border-radius: 8px;
+        padding: 20px;
+    }
+    .detail-panel h3 {
+        font-size: 1em;
+        margin: 0 0 12px 0;
+        color: var(--header-color, #333);
+    }
+    .detail-panel table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .detail-panel table th,
+    .detail-panel table td {
+        text-align: left;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--hairline-color, #eee);
+        font-size: 0.9em;
+    }
+    .detail-panel table th {
+        color: var(--body-quiet-color, #666);
+        font-weight: 600;
+    }
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8em;
+        font-weight: 600;
+    }
+    .badge-unread {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+    .badge-read {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+    .next-event-info {
+        padding: 12px 0;
+        font-size: 0.95em;
+        line-height: 1.6;
+    }
+    .next-event-info strong {
+        color: var(--header-color, #333);
+    }
+    .next-event-info .event-date {
+        color: #4CAF50;
+        font-weight: 600;
+    }
+    .no-data {
+        color: var(--body-quiet-color, #999);
+        font-style: italic;
+        padding: 12px 0;
+    }
+</style>
+
+<div class="metrics-dashboard">
+    <div class="metrics-section-title">Vue d'ensemble</div>
+    <div class="metrics-grid">
+        <div class="metric-card members">
+            <div class="metric-value">{{ metrics.members_active }}</div>
+            <div class="metric-label">Membres actifs</div>
+        </div>
+        <div class="metric-card albums">
+            <div class="metric-value">{{ metrics.albums_count }}</div>
+            <div class="metric-label">Albums</div>
+        </div>
+        <div class="metric-card tracks">
+            <div class="metric-value">{{ metrics.tracks_count }}</div>
+            <div class="metric-label">Pistes</div>
+        </div>
+        <div class="metric-card videos">
+            <div class="metric-value">{{ metrics.videos_count }}</div>
+            <div class="metric-label">Vid&eacute;os</div>
+        </div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card events-upcoming">
+            <div class="metric-value">{{ metrics.events_upcoming }}</div>
+            <div class="metric-label">Concerts &agrave; venir</div>
+        </div>
+        <div class="metric-card events-past">
+            <div class="metric-value">{{ metrics.events_past }}</div>
+            <div class="metric-label">Concerts pass&eacute;s</div>
+        </div>
+        <div class="metric-card messages-unread">
+            <div class="metric-value">{{ metrics.messages_unread }}</div>
+            <div class="metric-label">Messages non lus</div>
+        </div>
+        <div class="metric-card messages-total">
+            <div class="metric-value">{{ metrics.messages_total }}</div>
+            <div class="metric-label">Messages total</div>
+        </div>
+    </div>
+
+    <div class="metrics-details">
+        <div class="detail-panel">
+            <h3>Prochain concert</h3>
+            {% if metrics.next_event %}
+            <div class="next-event-info">
+                <strong>{{ metrics.next_event.title }}</strong><br>
+                <span class="event-date">{{ metrics.next_event.date|date:"l d F Y - H:i" }}</span><br>
+                {{ metrics.next_event.venue }}, {{ metrics.next_event.city }}
+                {% if metrics.next_event.ticket_url %}
+                    <br><a href="{{ metrics.next_event.ticket_url }}" target="_blank">Billetterie</a>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="no-data">Aucun concert programm&eacute;</div>
+            {% endif %}
+        </div>
+
+        <div class="detail-panel">
+            <h3>Derniers messages</h3>
+            {% if metrics.recent_messages %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>De</th>
+                        <th>Sujet</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in metrics.recent_messages %}
+                    <tr>
+                        <td>{{ msg.name }}</td>
+                        <td><a href="{% url 'admin:band_contactmessage_change' msg.pk %}">{{ msg.subject|truncatewords:5 }}</a></td>
+                        <td>{{ msg.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if msg.is_read %}
+                                <span class="badge badge-read">Lu</span>
+                            {% else %}
+                                <span class="badge badge-unread">Non lu</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-data">Aucun message</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{{ block.super }}
+{% endblock %}

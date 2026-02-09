@@ -122,6 +122,3 @@ class PageAdmin(admin.ModelAdmin):
     prepopulated_fields = {}
 
 
-admin.site.site_header = "Yes or Not – Administration"
-admin.site.site_title = "Yes or Not Admin"
-admin.site.index_title = "Gestion du site"
