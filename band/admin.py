@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     SiteSettings, Member, MemberPortfolioItem, MemberPhoto, Album, Track,
-    Video, Event, EventMedia, ContactMessage, Page, Song, SetlistEntry,
+    Video, Event, EventMedia, ContactMessage, Page, Song, SheetMusic, SetlistEntry,
 )
 
 
@@ -71,11 +71,17 @@ class VideoAdmin(admin.ModelAdmin):
         return "MP4" if obj.is_mp4 else "Embed"
 
 
+class SheetMusicInline(admin.TabularInline):
+    model = SheetMusic
+    extra = 1
+
+
 @admin.register(Song)
 class SongAdmin(admin.ModelAdmin):
-    list_display = ("title", "artist", "has_youtube", "has_audio")
+    list_display = ("title", "artist", "has_youtube", "has_audio", "has_lyrics", "sheets_count")
     list_filter = ("artist",)
     search_fields = ("title", "artist")
+    inlines = [SheetMusicInline]
 
     @admin.display(boolean=True, description="YouTube")
     def has_youtube(self, obj):
@@ -84,6 +90,15 @@ class SongAdmin(admin.ModelAdmin):
     @admin.display(boolean=True, description="MP3")
     def has_audio(self, obj):
         return bool(obj.audio_file)
+
+    @admin.display(boolean=True, description="Paroles")
+    def has_lyrics(self, obj):
+        return bool(obj.lyrics)
+
+    @admin.display(description="Partitions")
+    def sheets_count(self, obj):
+        count = obj.sheets.count()
+        return count or "-"
 
 
 class SetlistEntryInline(admin.TabularInline):

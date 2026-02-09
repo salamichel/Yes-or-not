@@ -237,6 +237,7 @@ class Song(models.Model):
         verbose_name="Enregistrement MP3",
         help_text="Fichier MP3 du morceau",
     )
+    lyrics = models.TextField(blank=True, verbose_name="Paroles")
     notes = models.TextField(blank=True, verbose_name="Notes")
 
     class Meta:
@@ -247,6 +248,25 @@ class Song(models.Model):
 
     def __str__(self):
         return f"{self.artist} – {self.title}"
+
+
+class SheetMusic(models.Model):
+    song = models.ForeignKey(Song, on_delete=models.CASCADE, related_name="sheets")
+    instrument = models.CharField(max_length=200, verbose_name="Instrument")
+    file = models.FileField(
+        upload_to="songs/sheets/",
+        verbose_name="Fichier (PDF, image…)",
+        help_text="Partition au format PDF ou image",
+    )
+
+    class Meta:
+        ordering = ["instrument"]
+        verbose_name = "Partition"
+        verbose_name_plural = "Partitions"
+        unique_together = [("song", "instrument")]
+
+    def __str__(self):
+        return f"{self.song.title} – {self.instrument}"
 
 
 class SetlistEntry(models.Model):
