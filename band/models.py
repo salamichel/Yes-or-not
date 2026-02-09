@@ -228,9 +228,21 @@ class EventMedia(models.Model):
         return self.caption or f"{self.get_media_type_display()} {self.pk}"
 
 
+class Artist(models.Model):
+    name = models.CharField(max_length=300, unique=True, verbose_name="Nom")
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Artiste"
+        verbose_name_plural = "Artistes"
+
+    def __str__(self):
+        return self.name
+
+
 class Song(models.Model):
     title = models.CharField(max_length=300, verbose_name="Titre")
-    artist = models.CharField(max_length=300, verbose_name="Artiste")
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, verbose_name="Artiste", related_name="songs")
     youtube_url = models.URLField(blank=True, verbose_name="URL YouTube")
     audio_file = models.FileField(
         upload_to="songs/mp3/", blank=True, null=True,
@@ -242,7 +254,7 @@ class Song(models.Model):
     notes = models.TextField(blank=True, verbose_name="Notes")
 
     class Meta:
-        ordering = ["artist", "title"]
+        ordering = ["artist__name", "title"]
         verbose_name = "Morceau (répertoire)"
         verbose_name_plural = "Morceaux (répertoire)"
         unique_together = [("title", "artist")]
